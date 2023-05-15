@@ -2,24 +2,23 @@
 
 ### Idea
 
--> Farmer
-	-> Generate Token for a product (Register a produce)
-		-> Location is added
-	-> Sends to a wholesaler
+- Farmer
+	- Generate Token for a product (Register a produce)
+		- Location is added
+	- Sends to a wholesaler
 
--> WholeSaler
-	-> Does Packaging
-		-> Adds packaging cost
-	-> Sends to a Retailer
+- WholeSaler
+	- Does Packaging
+		- Adds packaging cost
+	- Sends to a Retailer
 
--> Retailer
-	-> Cost of logistics is added
-	-> Time when product reached to retailer is added
+- Retailer
+	- Cost of logistics is added
+	- Time when product reached to retailer is added
 
-
--> Consumer
-	-> time he buys a product is added to ledger (final)
-	-> consumer can query all the data on the ledger
+- Consumer
+	- time he buys a product is added to ledger (final)
+	- consumer can query all the data on the ledger
 
 
 ### Chaincode Functions

@@ -10,7 +10,7 @@ class KVContract extends Contract {
     // function that will be invoked on chaincode instantiation
   }
 
-  async registerProduce(ctx, name, price, quantity) {
+  async registerProduce(ctx, farmerId, location, produceType, price, quantity) {
     const tokenId = ctx.stub.getTxID();
     const produce = {
       farmerId,
