@@ -1,0 +1,8 @@
+PeerOrgs:
+  - Name: consumer
+    Domain: consumer.supplychain.com
+    Specs:
+    Template:
+      Count: 1
+    Users:
+      Count: 1

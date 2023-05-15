@@ -1,0 +1,232 @@
+################################################################################
+#   SECTION: Capabilities
+################################################################################
+Capabilities:
+    Channel: &ChannelCapabilities
+        V2_0: true
+    Orderer: &OrdererCapabilities
+        V2_0: true
+    Application: &ApplicationCapabilities
+        V2_0: true
+
+################################################################################
+#   CHANNEL Defaults
+################################################################################
+Channel: &ChannelDefaults
+    Policies:
+        Readers:
+            Type: ImplicitMeta
+            Rule: "ANY Readers"
+        Writers:
+            Type: ImplicitMeta
+            Rule: "ANY Writers"
+        Admins:
+            Type: ImplicitMeta
+            Rule: "MAJORITY Admins"
+    Capabilities:
+        <<: *ChannelCapabilities
+
+################################################################################
+#   Section: Organizations
+################################################################################
+Organizations:
+    - &Orderer
+      Name: OrdererMSP
+      ID: OrdererMSP
+      MSPDir: crypto-config/peerOrganizations/orderer.supplychain.com/msp
+
+      Policies:
+          Readers:
+              Type: Signature
+              Rule: "OR('OrdererMSP.member')"
+          Writers:
+              Type: Signature
+              Rule: "OR('OrdererMSP.member')"
+          Admins:
+              Type: Signature
+              Rule: "OR('OrdererMSP.admin')"
+          Endorsement:
+              Type: Signature
+              Rule: "OR('OrdererMSP.member')"
+
+      AnchorPeers:
+
+    - &farmer
+      Name: farmerMSP
+      ID: farmerMSP
+      MSPDir: crypto-config/peerOrganizations/farmer.supplychain.com/msp
+
+      Policies:
+          Readers:
+              Type: Signature
+              Rule: "OR('farmerMSP.member')"
+          Writers:
+              Type: Signature
+              Rule: "OR('farmerMSP.member')"
+          Admins:
+              Type: Signature
+              Rule: "OR('farmerMSP.admin')"
+          Endorsement:
+              Type: Signature
+              Rule: "OR('farmerMSP.member')"
+
+      AnchorPeers:
+          - Host: peer0.farmer.supplychain.com
+            Port: 7041
+
+    - &seller
+      Name: sellerMSP
+      ID: sellerMSP
+      MSPDir: crypto-config/peerOrganizations/seller.supplychain.com/msp
+
+      Policies:
+          Readers:
+              Type: Signature
+              Rule: "OR('sellerMSP.member')"
+          Writers:
+              Type: Signature
+              Rule: "OR('sellerMSP.member')"
+          Admins:
+              Type: Signature
+              Rule: "OR('sellerMSP.admin')"
+          Endorsement:
+              Type: Signature
+              Rule: "OR('sellerMSP.member')"
+
+      AnchorPeers:
+          - Host: peer0.seller.supplychain.com
+            Port: 7061
+
+    - &consumer
+      Name: consumerMSP
+      ID: consumerMSP
+      MSPDir: crypto-config/peerOrganizations/consumer.supplychain.com/msp
+
+      Policies:
+          Readers:
+              Type: Signature
+              Rule: "OR('consumerMSP.member')"
+          Writers:
+              Type: Signature
+              Rule: "OR('consumerMSP.member')"
+          Admins:
+              Type: Signature
+              Rule: "OR('consumerMSP.admin')"
+          Endorsement:
+              Type: Signature
+              Rule: "OR('consumerMSP.member')"
+
+      AnchorPeers:
+          - Host: peer0.consumer.supplychain.com
+            Port: 7081
+
+################################################################################
+#   SECTION: Application
+################################################################################
+Application: &ApplicationDefaults
+    Organizations:
+    # Policies defines the set of policies at this level of the config tree
+    # For Application policies, their canonical path is
+    #   /Channel/Application/<PolicyName>
+    Policies:
+        Readers:
+            Type: ImplicitMeta
+            Rule: "ANY Readers"
+        Writers:
+            Type: ImplicitMeta
+            Rule: "ANY Writers"
+        Admins:
+            Type: ImplicitMeta
+            Rule: "MAJORITY Admins"
+        Endorsement:
+            Type: ImplicitMeta
+            Rule: "MAJORITY Endorsement"
+    Capabilities:
+        <<: *ApplicationCapabilities
+
+################################################################################
+#   SECTION: Orderer
+################################################################################
+Orderer: &Group1Defaults
+    OrdererType: etcdraft
+    Addresses:
+        - orderer0.group1.orderer.supplychain.com:7030
+    EtcdRaft:
+        Consenters:
+            - Host: orderer0.group1.orderer.supplychain.com
+              Port: 7030
+              ClientTLSCert: crypto-config/peerOrganizations/orderer.supplychain.com/peers/orderer0.group1.orderer.supplychain.com/tls/server.crt
+              ServerTLSCert: crypto-config/peerOrganizations/orderer.supplychain.com/peers/orderer0.group1.orderer.supplychain.com/tls/server.crt
+
+    BatchTimeout: 2s
+    BatchSize:
+        MaxMessageCount: 10
+        AbsoluteMaxBytes: 99 MB
+        PreferredMaxBytes: 512 KB
+    Organizations:
+    # Policies defines the set of policies at this level of the config tree
+    # For Orderer policies, their canonical path is
+    #   /Channel/Orderer/<PolicyName>
+    Policies:
+        Readers:
+            Type: ImplicitMeta
+            Rule: "ANY Readers"
+        Writers:
+            Type: ImplicitMeta
+            Rule: "ANY Writers"
+        Admins:
+            Type: ImplicitMeta
+            Rule: "MAJORITY Admins"
+        # BlockValidation specifies what signatures must be included in the block
+        # from the orderer for the peer to validate it.
+        BlockValidation:
+            Type: ImplicitMeta
+            Rule: "ANY Writers"
+    Capabilities:
+        <<: *OrdererCapabilities
+
+################################################################################
+#   Profile
+################################################################################
+# https://github:com/hyperledger/fabric/blob/master/sampleconfig/configtx.yaml
+
+Profiles:
+    # Profile used to create Genesis block for group group1 #
+    Group1Genesis:
+        <<: *ChannelDefaults
+        Orderer:
+            <<: *Group1Defaults
+            Organizations:
+                - *Orderer
+            Capabilities:
+                <<: *OrdererCapabilities
+        Consortiums:
+            SampleConsortium:
+                Organizations:
+                    - *Orderer
+                    - *farmer
+                    - *seller
+                    - *consumer
+
+    # Profile used to create channeltx for my-channel1 #
+    MyChannel1:
+        <<: *ChannelDefaults
+        Orderer:
+            <<: *Group1Defaults
+            Organizations:
+                - *Orderer
+            Capabilities:
+                <<: *ApplicationCapabilities
+        Consortium: SampleConsortium
+        Consortiums:
+            SampleConsortium:
+                Organizations:
+                    - *farmer
+                    - *seller
+                    - *consumer
+        Application:
+            <<: *ApplicationDefaults
+            Organizations:
+                - *farmer
+                - *seller
+                - *consumer

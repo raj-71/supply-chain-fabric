@@ -1,0 +1,17 @@
+{
+  "network-configs": {
+    "network-farmer": {
+      "name": "Network of farmer",
+      "profile": "/opt/explorer/app/platform/fabric/connection-profile/connection-profile-farmer.json"
+    },
+    "network-seller": {
+      "name": "Network of seller",
+      "profile": "/opt/explorer/app/platform/fabric/connection-profile/connection-profile-seller.json"
+    },
+    "network-consumer": {
+      "name": "Network of consumer",
+      "profile": "/opt/explorer/app/platform/fabric/connection-profile/connection-profile-consumer.json"
+    }
+  },
+  "license": "Apache-2.0"
+}

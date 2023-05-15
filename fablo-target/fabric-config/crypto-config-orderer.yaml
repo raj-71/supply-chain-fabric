@@ -1,0 +1,9 @@
+PeerOrgs:
+  - Name: Orderer
+    Domain: orderer.supplychain.com
+    Specs:
+      - Hostname: orderer0.group1
+    Template:
+      Count: 0
+    Users:
+      Count: 1
