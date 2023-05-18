@@ -4,50 +4,59 @@ const { Contract } = require('fabric-contract-api');
 
 const balancePrefix = 'balance';
 const nftPrefix = 'nft';
-const approvalPrefix = 'approval';
+// const approvalPrefix = 'approval';
 
 const nameKey = 'name';
 const symbolKey = 'symbol';
 
 class SupplyChainContracts extends Contract {
 
-    // balance of NFTs assigned to an owner
-    async balanceOf(ctx, owner) {
-        // Check contract options have been initialized
-        await this.CheckInitialized(ctx);
-
-        // There is a key record for every NFT in the format of balancePrefix.owner.tokenId
-        // BalanceOf() queries for and counts all records matching balancePrefix.owner.*
-        const iterator = await ctx.stub.getStateByPartialCompositeKey(balancePrefix, [owner]);
-
-        // Iterate through result set and count number of results
-        let balance = 0;
-        let result = await iterator.next();
-        while (!result.done) {
-            balance++;
-            result = await iterator.next();
-        }
-        return balance;
-    }
-
-    // return owner of NFT
-    async ownerOf(ctx, tokenId) {
-        // Check contract options have been initialized
-        await this.CheckInitialized(ctx);
-
-        const nft = await this._readNFT(ctx, tokenId);
-        const owner = nft.owner;
-        if (!owner) {
-            throw new Error('Owner of tokenId ' + tokenId + ' does not exist');
+    async createToken(ctx, tokenId, tokenURI) {
+        
+        // check if the user is authorized to create a token
+        const clientMSPID = ctx.clientIdentity.getMSPID();
+        if(clientMSPID !== 'Org1MSP') {
+            throw new Error('Client is not authorized to create a token');
         }
 
-        return owner;
+        // get id of the user
+        const minter = ctx.clientIdentity.getID();
+
+        // check if the token already exists
+        const exists = await this._nftExists(ctx, tokenId);
+        if(exists) {
+            throw new Error('Token ' + tokenId + ' already exists');
+        }
+
+        // create the token
+        const tokenIdInt = parseInt(tokenId);
+        if(isNaN(tokenIdInt)) {
+            throw new Error('Token ID must be an integer');
+        }
+
+        const nft = {
+            tokenId: tokenIdInt,
+            owner: minter,
+            tokenURI: tokenURI
+        };
+
+        const nftKey = ctx.stub.createCompositeKey(nftPrefix, [tokenId]);
+        await ctx.stub.putState(nftKey, Buffer.from(JSON.stringify(nft)));
+
+        const balanceKey = ctx.stub.createCompositeKey(balancePrefix, [minter, tokenId]);
+        await ctx.stub.putState(balanceKey, Buffer.from('\u0000'));
+
+        // Emit the Transfer event
+        const transferEvent = { from: '0x0', to: minter, tokenId: tokenIdInt };
+        ctx.stub.setEvent('Transfer', Buffer.from(JSON.stringify(transferEvent)));
+
+        return nft;
     }
+
+
 
     // transfer NFT from one owner to another
     async transferFrom(ctx, from, to, tokenId) {
-        // Check contract options have been initialized
-        await this.CheckInitialized(ctx);
 
         const sender = ctx.clientIdentity.getID();
 
@@ -104,14 +113,6 @@ class SupplyChainContracts extends Contract {
         const nftKey = ctx.stub.createCompositeKey(nftPrefix, [tokenId]);
         const nftBytes = await ctx.stub.getState(nftKey);
         return nftBytes && nftBytes.length > 0;
-    }
-
-    // Checks that contract options have been already initialized
-    async CheckInitialized(ctx){
-        const nameBytes = await ctx.stub.getState(nameKey);
-        if (!nameBytes || nameBytes.length === 0) {
-            throw new Error('contract options need to be set before calling any function, call Initialize() to initialize contract');
-        }
     }
 
 }
