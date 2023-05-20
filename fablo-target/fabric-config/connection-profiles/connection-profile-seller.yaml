@@ -14,32 +14,14 @@ organizations:
       - ca.seller.supplychain.com
 peers:
   peer0.farmer.supplychain.com:
-    url: grpcs://localhost:7041
-    tlsCACerts:
-      path: >-
-        /home/kali/Documents/supply-chain-fabric/fablo-target/fabric-config/crypto-config/peerOrganizations/farmer.supplychain.com/peers/peer0.farmer.supplychain.com/tls/ca.crt
-    grpcOptions:
-      ssl-target-name-override: peer0.farmer.supplychain.com
+    url: grpc://localhost:7041
   peer0.seller.supplychain.com:
-    url: grpcs://localhost:7061
-    tlsCACerts:
-      path: >-
-        /home/kali/Documents/supply-chain-fabric/fablo-target/fabric-config/crypto-config/peerOrganizations/seller.supplychain.com/peers/peer0.seller.supplychain.com/tls/ca.crt
-    grpcOptions:
-      ssl-target-name-override: peer0.seller.supplychain.com
+    url: grpc://localhost:7061
   peer0.consumer.supplychain.com:
-    url: grpcs://localhost:7081
-    tlsCACerts:
-      path: >-
-        /home/kali/Documents/supply-chain-fabric/fablo-target/fabric-config/crypto-config/peerOrganizations/consumer.supplychain.com/peers/peer0.consumer.supplychain.com/tls/ca.crt
-    grpcOptions:
-      ssl-target-name-override: peer0.consumer.supplychain.com
+    url: grpc://localhost:7081
 certificateAuthorities:
   ca.seller.supplychain.com:
     url: http://localhost:7060
     caName: ca.seller.supplychain.com
-    tlsCACerts:
-      path: >-
-        /home/kali/Documents/supply-chain-fabric/fablo-target/fabric-config/crypto-config/peerOrganizations/seller.supplychain.com/ca/ca.seller.supplychain.com-cert.pem
     httpOptions:
       verify: false

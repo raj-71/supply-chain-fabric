@@ -148,16 +148,9 @@ Application: &ApplicationDefaults
 #   SECTION: Orderer
 ################################################################################
 Orderer: &Group1Defaults
-    OrdererType: etcdraft
+    OrdererType: solo
     Addresses:
         - orderer0.group1.orderer.supplychain.com:7030
-    EtcdRaft:
-        Consenters:
-            - Host: orderer0.group1.orderer.supplychain.com
-              Port: 7030
-              ClientTLSCert: crypto-config/peerOrganizations/orderer.supplychain.com/peers/orderer0.group1.orderer.supplychain.com/tls/server.crt
-              ServerTLSCert: crypto-config/peerOrganizations/orderer.supplychain.com/peers/orderer0.group1.orderer.supplychain.com/tls/server.crt
-
     BatchTimeout: 2s
     BatchSize:
         MaxMessageCount: 10

@@ -11,11 +11,12 @@ const symbolKey = 'symbol';
 
 class SupplyChainContracts extends Contract {
 
+    // to create token but only farmer is authorized to create token
     async createToken(ctx, tokenId, tokenURI) {
         
         // check if the user is authorized to create a token
         const clientMSPID = ctx.clientIdentity.getMSPID();
-        if(clientMSPID !== 'Org1MSP') {
+        if(clientMSPID !== 'FarmerMSP') {
             throw new Error('Client is not authorized to create a token');
         }
 
@@ -50,10 +51,8 @@ class SupplyChainContracts extends Contract {
         const transferEvent = { from: '0x0', to: minter, tokenId: tokenIdInt };
         ctx.stub.setEvent('Transfer', Buffer.from(JSON.stringify(transferEvent)));
 
-        return nft;
+        return nftKey;
     }
-
-
 
     // transfer NFT from one owner to another
     async transferFrom(ctx, from, to, tokenId) {
@@ -61,14 +60,6 @@ class SupplyChainContracts extends Contract {
         const sender = ctx.clientIdentity.getID();
 
         const nft = await this._readNFT(ctx, tokenId);
-
-        // Check that from is current owner of tokenId
-        // const owner = nft.owner;
-        // const tokenApproval = nft.approved;
-        // const operatorApproval = await this.IsApprovedForAll(ctx, owner, sender);
-        // if(owner !== sender && tokenApproval !== sender && !operatorApproval) {
-        //     throw new Error('Sender ' + sender + ' is not owner or approved for tokenId ' + tokenId);
-        // }
 
         // Check if from is the current owner
         if(owner !== from) {
@@ -98,6 +89,40 @@ class SupplyChainContracts extends Contract {
 
         return true;
     }
+
+    // to add metadata to the token
+    async addMetadata(ctx, tokenId, metadataURI) {
+        
+        const owner = ctx.clientIdentity.getID();
+
+        // check if the tokenId exists
+        const exists = await this._nftExists(ctx, tokenId);
+        if(!exists) {
+            throw new Error('Token ' + tokenId + ' does not exist');
+        }
+
+        // check if the user is authorized to add metadata
+        const nft = await this._readNFT(ctx, tokenId);
+        if(nft.owner !== owner) {
+            throw new Error('User is not authorized to add metadata');
+        }
+
+        // add metadata to the token
+        const orgName = ctx.clientIdentity.getMSPID();
+        orgName = orgName.slice(0, -3).toLowerCase();
+        nft.orgName = metadataURI;
+
+        const nftKey = ctx.stub.createCompositeKey(nftPrefix, [tokenId]);
+        await ctx.stub.putState(nftKey, Buffer.from(JSON.stringify(nft)));
+                
+        return nft;
+    }
+
+    async queryNFT(ctx, tokenId) {
+        const nft = await this._readNFT(ctx, tokenId);
+        return nft;
+    }
+
 
     async _readNFT(ctx, tokenId) {
         const nftKey = ctx.stub.createCompositeKey(nftPrefix, [tokenId]);

@@ -1,0 +1,53 @@
+{
+    "name": "fablo-test-network-${ORG}",
+    "description": "Connection profile in Fablo network",
+    "version": "1.0.0",
+    "client": {
+        "organization": "${ORG}"
+    },
+    "organizations": {
+        "${ORG}": {
+            "mspid": "${ORG}MSP",
+            "peers": [
+                "peer0.farmer.supplychain.com",
+                "peer0.seller.supplychain.com",
+                "peer0.consumer.supplychain.com"
+            ],
+            "certificateAuthorities": [
+                "ca.${ORG}.supplychain.com"
+            ]
+        }
+    },
+    "peers": {
+        "peer0.farmer.supplychain.com": {
+          "url": "grpc://localhost:7041",
+          "tlsCACerts": {
+            "pem": "${PEERPEM1}"
+          }
+        },
+        "peer0.seller.supplychain.com": {
+          "url": "grpc://localhost:7061",
+          "tlsCACerts": {
+            "pem": "${PEERPEM2}"
+          }
+        },
+        "peer0.consumer.supplychain.com": {
+          "url": "grpc://localhost:7081",
+          "tlsCACerts": {
+            "pem": "${PEERPEM3}"
+          }
+        }
+      },
+    "certificateAuthorities": {
+        "ca.${ORG}.supplychain.com": {
+            "url": "http://localhost:${CAPORT}",
+            "caName": "ca.${ORG}.supplychain.com",
+            "tlsCACerts": {
+                "pem": "${CAPEM}"
+            },
+            "httpOptions": {
+                "verify": false
+            }
+        }
+    }
+}

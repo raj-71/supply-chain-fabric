@@ -2,19 +2,19 @@
 \- Without logistics implementation
 
 - Farmer
-    - Can Create a new token
-    - Can transfer token to a wholesaler
+    - Can Create a new token (DONE)
+    - Can transfer token to a wholesaler (DONE)
 
 - Wholesaler
-    - Can add changes to the token metadata
-    - Can transfer token to a retailer
+    - Can add changes to the token metadata (DONE)
+    - Can transfer token to a retailer (DONE)
 
 - Retailer
-    - Can add changes to the token metadata
-    - Can transfer token to a consumer
+    - Can add changes to the token metadata (DONE)
+    - Can transfer token to a consumer (DONE)
 
 - Consumer
-    - Can query all data of the token
+    - Can query all data of the token (DONE)
 
 
 #### Future Scope

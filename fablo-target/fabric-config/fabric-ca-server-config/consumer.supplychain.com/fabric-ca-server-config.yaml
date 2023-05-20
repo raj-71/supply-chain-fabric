@@ -240,7 +240,12 @@ ldap:
 # which are always stored in lower case.
 #############################################################################
 affiliations:
+  farmer:
+    - department1
+  seller:
+    - department1
   consumer:
+    - department1
 
 #############################################################################
 #  Signing section
