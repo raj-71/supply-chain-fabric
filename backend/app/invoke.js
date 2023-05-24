@@ -36,7 +36,7 @@ const invokeTransaction = async (channelName, chaincodeName, fcn, args, username
         const gateway = new Gateway();
         await gateway.connect(ccp, connectOptions);
 
-     const network = await gateway.getNetwork(channelName);
+        const network = await gateway.getNetwork(channelName);
         const contract = network.getContract(chaincodeName);
 
         // Important: Please dont set listener here, I just showed how to set it. If we are doing here, it will set on every invoke call.
@@ -50,21 +50,18 @@ const invokeTransaction = async (channelName, chaincodeName, fcn, args, username
         let message;
 
         switch (fcn) {
-            case "CreatePrivateDataImplicitForOrg1":
-            case 'ABACTest':
-            case 'CreateContract':
-            case "CreateCar":
+            case "createToken":
+                console.log("before")
                 result = await contract.submitTransaction(fcn, args[0]);
+                console.log("result: =========", result);
                 result = {txid: result.toString()}
                 break;
-            case "UpdateCarOwner":
-                console.log("=============")
-                result = await contract.submitTransaction('SmartContract:'+fcn, args[0], args[1]);
+            case "transferFrom":
+                result = await contract.submitTransaction(fcn, args[0], args[1], args[2]);
                 result = {txid: result.toString()}
                 break;
-            case "CreateDocument":
-                result = await contract.submitTransaction('DocumentContract:'+fcn, args[0]);
-                console.log(result.toString())
+            case "addMetadata":
+                result = await contract.submitTransaction(fcn, args[0], args[1]);
                 result = {txid: result.toString()}
                 break;
             default:

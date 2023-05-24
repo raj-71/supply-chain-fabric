@@ -195,7 +195,7 @@ app.post('/channels/:channelName/chaincodes/:chaincodeName', async function (req
         var channelName = req.params.channelName;
         var fcn = req.body.fcn;
         var args = req.body.args;
-        var transient = req.body.transient;
+        var transient = "";
         console.log(`Transient data is ;${transient}`)
         logger.debug('channelName  : ' + channelName);
         logger.debug('chaincodeName : ' + chaincodeName);

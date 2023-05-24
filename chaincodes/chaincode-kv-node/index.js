@@ -1,10 +1,10 @@
 'use strict';
 
-const supplyChainContracts = require('./lib/supplyChainContracts.js');
+const SupplyChainContracts = require('./lib/supplyChainContracts.js');
 
 
-module.exports.SupplyChainContracts = supplyChainContracts;
-module.exports.contracts = [supplyChainContracts];
+module.exports.SupplyChainContracts = SupplyChainContracts;
+module.exports.contracts = [SupplyChainContracts];
 
 // const { Contract } = require("fabric-contract-api");
 // const crypto = require("crypto");

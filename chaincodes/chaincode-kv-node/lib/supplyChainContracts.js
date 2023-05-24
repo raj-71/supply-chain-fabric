@@ -2,97 +2,61 @@
 
 const { Contract } = require('fabric-contract-api');
 
-const balancePrefix = 'balance';
 const nftPrefix = 'nft';
-// const approvalPrefix = 'approval';
-
-const nameKey = 'name';
-const symbolKey = 'symbol';
 
 class SupplyChainContracts extends Contract {
 
     // to create token but only farmer is authorized to create token
-    async createToken(ctx, tokenId, tokenURI) {
+    async createToken(ctx, farmerURI) {
         
         // check if the user is authorized to create a token
-        const clientMSPID = ctx.clientIdentity.getMSPID();
-        if(clientMSPID !== 'FarmerMSP') {
-            throw new Error('Client is not authorized to create a token');
+        const clientOrg = ctx.clientIdentity.getMSPID();
+        if(clientOrg !== 'farmerMSP') {
+            throw new Error(`Client of org ${clientOrg} is not authorized to create a token `);
         }
 
         // get id of the user
         const minter = ctx.clientIdentity.getID();
 
-        // check if the token already exists
-        const exists = await this._nftExists(ctx, tokenId);
-        if(exists) {
-            throw new Error('Token ' + tokenId + ' already exists');
-        }
-
-        // create the token
-        const tokenIdInt = parseInt(tokenId);
-        if(isNaN(tokenIdInt)) {
-            throw new Error('Token ID must be an integer');
-        }
+        const tokenId = await this._generateTokenId(ctx);
 
         const nft = {
-            tokenId: tokenIdInt,
+            tokenId: tokenId,
             owner: minter,
-            tokenURI: tokenURI
+            farmer: farmerURI
         };
 
-        const nftKey = ctx.stub.createCompositeKey(nftPrefix, [tokenId]);
-        await ctx.stub.putState(nftKey, Buffer.from(JSON.stringify(nft)));
+        // const nftKey = ctx.stub.createCompositeKey(nftPrefix, [tokenId]);
+        await ctx.stub.putState(tokenId, Buffer.from(JSON.stringify(nft)));
 
-        const balanceKey = ctx.stub.createCompositeKey(balancePrefix, [minter, tokenId]);
-        await ctx.stub.putState(balanceKey, Buffer.from('\u0000'));
-
-        // Emit the Transfer event
-        const transferEvent = { from: '0x0', to: minter, tokenId: tokenIdInt };
-        ctx.stub.setEvent('Transfer', Buffer.from(JSON.stringify(transferEvent)));
-
-        return nftKey;
+        return tokenId;
     }
 
     // transfer NFT from one owner to another
-    async transferFrom(ctx, from, to, tokenId) {
+    async transferFrom(ctx, to, tokenId) {
 
-        const sender = ctx.clientIdentity.getID();
+        // get current user
+        const owner = ctx.clientIdentity.getID();
 
+        // read nft token data
         const nft = await this._readNFT(ctx, tokenId);
 
-        // Check if from is the current owner
-        if(owner !== from) {
-            throw new Error('From ' + from + ' is not owner of tokenId ' + tokenId);
+        // Check if the current user is the owner of the token
+        if(nft.owner !== owner) {
+            throw new Error(owner + ' is not owner of tokenId ' + tokenId);
         }
-
-        // Clear the approved client for this token
-        nft.approved = '';
 
         // Update the owner of the token
         nft.owner = to;
-        const nftKey = ctx.stub.createCompositeKey(nftPrefix, [tokenId]);
-        await ctx.stub.putState(nftKey, Buffer.from(JSON.stringify(nft)));
+        await ctx.stub.putState(tokenId, Buffer.from(JSON.stringify(nft)));
 
-        // Update the balance of current owner
-        const balanceKeyFrom = ctx.stub.createCompositeKey(balancePrefix, [from, tokenId]);
-        await ctx.stub.deleteState(balanceKeyFrom);
-
-        // Update the balance of new owner
-        const balanceKeyTo = ctx.stub.createCompositeKey(balancePrefix, [to, tokenId]);
-        await ctx.stub.putState(balanceKeyTo, Buffer.from('\u0000'));
-
-        // Emit the Transfer event
-        const tokenIdInt = parseInt(tokenId);
-        const transferEvent = { from: from, to: to, tokenId: tokenIdInt };
-        ctx.stub.setEvent('Transfer', Buffer.from(JSON.stringify(transferEvent)));
-
-        return true;
+        return tokenId;
     }
 
     // to add metadata to the token
     async addMetadata(ctx, tokenId, metadataURI) {
         
+        // get current user
         const owner = ctx.clientIdentity.getID();
 
         // check if the tokenId exists
@@ -102,42 +66,108 @@ class SupplyChainContracts extends Contract {
         }
 
         // check if the user is authorized to add metadata
-        const nft = await this._readNFT(ctx, tokenId);
+        let nft = await this._readNFT(ctx, tokenId);
         if(nft.owner !== owner) {
             throw new Error('User is not authorized to add metadata');
         }
 
         // add metadata to the token
-        const orgName = ctx.clientIdentity.getMSPID();
+        let orgName = ctx.clientIdentity.getMSPID();
         orgName = orgName.slice(0, -3).toLowerCase();
-        nft.orgName = metadataURI;
+        nft[orgName] = metadataURI;
 
-        const nftKey = ctx.stub.createCompositeKey(nftPrefix, [tokenId]);
-        await ctx.stub.putState(nftKey, Buffer.from(JSON.stringify(nft)));
+        await ctx.stub.putState(tokenId, Buffer.from(JSON.stringify(nft)));
                 
         return nft;
     }
 
+    // to query the asset data from the ledger by tokenId
     async queryNFT(ctx, tokenId) {
         const nft = await this._readNFT(ctx, tokenId);
         return nft;
     }
 
+    // to generate tokenId for an asset
+    async _generateTokenId(ctx) {
+        let exists = false;
+        let tokenId = '';
+        const characters = '0123456789abcdefghijklmnopqrstuvwxyz';
 
+        while (!exists) {
+            for (let i = 0; i < 32; i++) {
+                tokenId += characters.charAt(Math.floor(Math.random() * 36));
+            }
+            exists = await this._nftExists(ctx, tokenId);
+        }
+        return tokenId;
+    }
+
+    // read the NFT from the ledger
     async _readNFT(ctx, tokenId) {
-        const nftKey = ctx.stub.createCompositeKey(nftPrefix, [tokenId]);
-        const nftBytes = await ctx.stub.getState(nftKey);
+        // get token data from the ledger
+        const nftBytes = await ctx.stub.getState(tokenId);
+        
+        // check if the NFT exists
         if (!nftBytes || nftBytes.length === 0) {
             throw new Error('tokenId ' + tokenId + ' does not exist');
         }
+        
+        
+        // convert the buffer into JSON object
         const nft = JSON.parse(nftBytes.toString());
         return nft;
     }
 
+    // get history of the NFT
+    async _getHistory(ctx, tokenId) {
+        const historyIterator = await ctx.stub.getHistoryForKey(tokenId);
+        const historyList = [];
+
+        while (true) {
+            const historyRecord = await historyIterator.next();
+
+            if(historyRecord.done) {
+                await historyIterator.close();
+                return historyList;
+            }
+
+            const transaction = historyRecord.value;
+
+            historyList.push({
+                transactionId: transaction.txId,
+                timestamp: transaction.timestamp,
+                isDelete: transaction.is_delete,
+                value: transaction.value.toString('utf8')
+            });
+        }
+        // const history = await ctx.stub.getHistoryForKey(tokenId);
+        // const historyList = [];
+        // while (true) {
+        //     const historyRecord = await history.next();
+        //     if (historyRecord.value && historyRecord.value.value.toString()) {
+        //         let nft;
+        //         try {
+        //             nft = JSON.parse(historyRecord.value.value.toString('utf8'));
+        //         } catch (err) {
+        //             console.log(err);
+        //             nft = historyRecord.value.value.toString('utf8');
+        //         }
+        //         historyList.push(nft);
+        //     }
+        //     if (historyRecord.done) {
+        //         await history.close();
+        //         return historyList;
+        //     }
+        // }
+    }
+
+    // check if the NFT exists
     async _nftExists(ctx, tokenId) {
-        const nftKey = ctx.stub.createCompositeKey(nftPrefix, [tokenId]);
-        const nftBytes = await ctx.stub.getState(nftKey);
+        
+        const nftBytes = await ctx.stub.getState(tokenId);
         return nftBytes && nftBytes.length > 0;
     }
 
 }
+
+module.exports = SupplyChainContracts;
