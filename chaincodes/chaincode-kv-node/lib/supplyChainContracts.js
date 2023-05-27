@@ -7,7 +7,7 @@ const nftPrefix = 'nft';
 class SupplyChainContracts extends Contract {
 
     // to create token but only farmer is authorized to create token
-    async createToken(ctx, farmerURI) {
+    async createToken(ctx, tokenId,farmerURI) {
         
         // check if the user is authorized to create a token
         const clientOrg = ctx.clientIdentity.getMSPID();
@@ -18,15 +18,12 @@ class SupplyChainContracts extends Contract {
         // get id of the user
         const minter = ctx.clientIdentity.getID();
 
-        const tokenId = await this._generateTokenId(ctx);
-
         const nft = {
             tokenId: tokenId,
             owner: minter,
             farmer: farmerURI
         };
 
-        // const nftKey = ctx.stub.createCompositeKey(nftPrefix, [tokenId]);
         await ctx.stub.putState(tokenId, Buffer.from(JSON.stringify(nft)));
 
         return tokenId;
@@ -39,7 +36,7 @@ class SupplyChainContracts extends Contract {
         const owner = ctx.clientIdentity.getID();
 
         // read nft token data
-        const nft = await this._readNFT(ctx, tokenId);
+        const nft = await this.readNFT(ctx, tokenId);
 
         // Check if the current user is the owner of the token
         if(nft.owner !== owner) {
@@ -60,13 +57,13 @@ class SupplyChainContracts extends Contract {
         const owner = ctx.clientIdentity.getID();
 
         // check if the tokenId exists
-        const exists = await this._nftExists(ctx, tokenId);
+        const exists = await this.nftExists(ctx, tokenId);
         if(!exists) {
             throw new Error('Token ' + tokenId + ' does not exist');
         }
 
         // check if the user is authorized to add metadata
-        let nft = await this._readNFT(ctx, tokenId);
+        let nft = await this.readNFT(ctx, tokenId);
         if(nft.owner !== owner) {
             throw new Error('User is not authorized to add metadata');
         }
@@ -83,27 +80,12 @@ class SupplyChainContracts extends Contract {
 
     // to query the asset data from the ledger by tokenId
     async queryNFT(ctx, tokenId) {
-        const nft = await this._readNFT(ctx, tokenId);
+        const nft = await this.readNFT(ctx, tokenId);
         return nft;
     }
 
-    // to generate tokenId for an asset
-    async _generateTokenId(ctx) {
-        let exists = false;
-        let tokenId = '';
-        const characters = '0123456789abcdefghijklmnopqrstuvwxyz';
-
-        while (!exists) {
-            for (let i = 0; i < 32; i++) {
-                tokenId += characters.charAt(Math.floor(Math.random() * 36));
-            }
-            exists = await this._nftExists(ctx, tokenId);
-        }
-        return tokenId;
-    }
-
     // read the NFT from the ledger
-    async _readNFT(ctx, tokenId) {
+    async readNFT(ctx, tokenId) {
         // get token data from the ledger
         const nftBytes = await ctx.stub.getState(tokenId);
         
@@ -119,7 +101,7 @@ class SupplyChainContracts extends Contract {
     }
 
     // get history of the NFT
-    async _getHistory(ctx, tokenId) {
+    async getHistory(ctx, tokenId) {
         const historyIterator = await ctx.stub.getHistoryForKey(tokenId);
         const historyList = [];
 
@@ -140,29 +122,10 @@ class SupplyChainContracts extends Contract {
                 value: transaction.value.toString('utf8')
             });
         }
-        // const history = await ctx.stub.getHistoryForKey(tokenId);
-        // const historyList = [];
-        // while (true) {
-        //     const historyRecord = await history.next();
-        //     if (historyRecord.value && historyRecord.value.value.toString()) {
-        //         let nft;
-        //         try {
-        //             nft = JSON.parse(historyRecord.value.value.toString('utf8'));
-        //         } catch (err) {
-        //             console.log(err);
-        //             nft = historyRecord.value.value.toString('utf8');
-        //         }
-        //         historyList.push(nft);
-        //     }
-        //     if (historyRecord.done) {
-        //         await history.close();
-        //         return historyList;
-        //     }
-        // }
     }
 
     // check if the NFT exists
-    async _nftExists(ctx, tokenId) {
+    async nftExists(ctx, tokenId) {
         
         const nftBytes = await ctx.stub.getState(tokenId);
         return nftBytes && nftBytes.length > 0;

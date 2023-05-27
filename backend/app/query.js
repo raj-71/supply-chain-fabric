@@ -44,6 +44,15 @@ const query = async (channelName, chaincodeName, args, fcn, username, org_name) 
         let result;
 
         switch (fcn) {
+            case "generateTokenId":
+                result = await contract.submitTransaction(fcn);
+                console.log("result: =========", result);
+                // result = {txid: result.toString()}
+                break;
+            case "nftExists":
+                result = await contract.evaluateTransaction(fcn, args[0]);
+                console.log("query result: =========", result);
+                break;
             case "GetDocumentUsingCarContract":
                 console.log("=============")
                 result = await contract.evaluateTransaction('SmartContract:'+fcn, args[0]);

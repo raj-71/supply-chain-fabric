@@ -8,6 +8,31 @@ const util = require('util')
 
 const helper = require('./helper');
 const { blockListener, contractListener } = require('./Listeners');
+const query = require('./query');
+
+const generateTokenId = async (channelName, chaincodeName, fcn, args, username, orgname) => {
+    try {
+        let exists = true;
+        let tokenId = '';
+        const characters = '0123456789abcdefghijklmnopqrstuvwxyz';
+
+        while (exists) {
+            for (let i = 0; i < 32; i++) {
+                tokenId += characters.charAt(Math.floor(Math.random() * 36));
+            }
+            console.log("tokenId")
+            let message = await query.query(channelName, chaincodeName, tokenId, "nftExists", username, orgname);
+            exists = JSON.parse(message.toString());
+            console.log("message by generateTokenId: ", JSON.parse(message.toString()));
+        }
+        console.log("final tokenId by function: ", tokenId);
+        return tokenId;
+    }
+    catch (error) {
+        console.error(`Failed to generate token Id: ${error}`);
+        process.exit(1);
+    }
+}
 
 const invokeTransaction = async (channelName, chaincodeName, fcn, args, username, org_name, transientData) => {
     try {
@@ -52,20 +77,25 @@ const invokeTransaction = async (channelName, chaincodeName, fcn, args, username
         switch (fcn) {
             case "createToken":
                 console.log("before")
-                result = await contract.submitTransaction(fcn, args[0]);
+                let tokenId = await generateTokenId(channelName, chaincodeName, fcn, args, username, org_name);
+                console.log("after tokenId: ", tokenId);
+                result = await contract.submitTransaction(fcn, tokenId, args[0]);
                 console.log("result: =========", result);
                 result = {txid: result.toString()}
                 break;
             case "transferFrom":
-                result = await contract.submitTransaction(fcn, args[0], args[1], args[2]);
+                result = await contract.submitTransaction(fcn, args[0], args[1]);
                 result = {txid: result.toString()}
                 break;
             case "addMetadata":
                 result = await contract.submitTransaction(fcn, args[0], args[1]);
                 result = {txid: result.toString()}
                 break;
-            default:
+            case "_generateTokenId":
+                result = await contract.submitTransaction(fcn);
+                result = {txid: result.toString()}
                 break;
+            default:
         }
 
         await gateway.disconnect();

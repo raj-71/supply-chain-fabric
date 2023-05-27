@@ -1,2 +1,5 @@
 /backend/node_modules
 /chaincodes/chaincode-kv-node/node_modules
+/fablo-target
+/backend/testing/node_modules
+/backend/*-wallet
