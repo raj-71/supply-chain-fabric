@@ -29,6 +29,32 @@ class SupplyChainContracts extends Contract {
         return tokenId;
     }
 
+    // create token over token
+    async createTokenOverToken(ctx, tokenId, parentTokenId, owner, metadataURI){
+        // get parent token data
+        const tokenAsBytes = await ctx.stub.getState(parentTokenId);
+        if (!tokenAsBytes || tokenAsBytes.length === 0) {
+            throw new Error('tokenId ' + parentTokenId + ' does not exist');
+        }
+
+        const parentToken = JSON.parse(tokenAsBytes.toString());
+
+        const TokenOverToken = {
+            tokenId: tokenId,
+            owner: owner,
+            parentTokenId: parentTokenId,
+            metadataURI: metadataURI
+        }
+
+        // add child token id to parent token
+        parentToken.childTokenId.push(tokenId);
+
+        await ctx.stub.putState(parentTokenId, Buffer.from(JSON.stringify(parentToken)));
+        await ctx.stub.putState(tokenId, Buffer.from(JSON.stringify(TokenOverToken)));
+
+    }
+
+
     // transfer NFT from one owner to another
     async transferFrom(ctx, to, tokenId) {
 
@@ -78,12 +104,6 @@ class SupplyChainContracts extends Contract {
         return nft;
     }
 
-    // to query the asset data from the ledger by tokenId
-    async queryNFT(ctx, tokenId) {
-        const nft = await this.readNFT(ctx, tokenId);
-        return nft;
-    }
-
     // read the NFT from the ledger
     async readNFT(ctx, tokenId) {
         // get token data from the ledger
@@ -93,7 +113,6 @@ class SupplyChainContracts extends Contract {
         if (!nftBytes || nftBytes.length === 0) {
             throw new Error('tokenId ' + tokenId + ' does not exist');
         }
-        
         
         // convert the buffer into JSON object
         const nft = JSON.parse(nftBytes.toString());

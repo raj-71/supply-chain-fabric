@@ -294,7 +294,8 @@ const registerAndGerSecret = async (username, userOrg) => {
     let secret;
     try {
         // Register the user, enroll the user, and import the new identity into the wallet.
-        secret = await ca.register({ affiliation: await getAffiliation(userOrg), enrollmentID: username, role: 'client' }, adminUser);
+        secret = await ca.register({ affiliation: await getAffiliation(userOrg), enrollmentID: username, role: 'client', maxEnrollments: -1 }, adminUser);
+        console.log("secret : ", secret);
         // const secret = await ca.register({ affiliation: `${userOrg}.department1`, enrollmentID: username, role: 'client', attrs: [{ name: 'role', value: 'approver', ecert: true }] }, adminUser);
         const enrollment = await ca.enroll({
             enrollmentID: username,

@@ -157,9 +157,11 @@ app.post('/register', async function (req, res) {
 app.post('/users/login', async function (req, res) {
     var username = req.body.username;
     var orgName = req.body.orgName;
+    var secret = req.body.secret;
     logger.debug('End point : /users');
     logger.debug('User name : ' + username);
     logger.debug('Org name  : ' + orgName);
+    logger.debug('secret  : ' + secret);
     if (!username) {
         res.json(getErrorMessage('\'username\''));
         return;
@@ -175,7 +177,7 @@ app.post('/users/login', async function (req, res) {
         orgName: orgName
     }, app.get('secret'));
 
-    let isUserRegistered = await helper.isUserRegistered(username, orgName);
+    let isUserRegistered = await helper.isUserRegistered(username, orgName, secret);
 
     if (isUserRegistered) {
         res.json({ success: true, message: { token: token } });
