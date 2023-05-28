@@ -157,14 +157,28 @@ const getRegisteredUser = async (username, userOrg, isJson) => {
     return response
 }
 
-const isUserRegistered = async (username, userOrg) => {
+const isUserRegistered = async (username, userOrg, secret) => {
     const walletPath = await getWalletPath(userOrg)
     const wallet = await Wallets.newFileSystemWallet(walletPath);
     console.log(`Wallet path: ${walletPath}`);
 
     const userIdentity = await wallet.get(username);
     if (userIdentity) {
+
+        let ccp = await getCCP(userOrg);
+
+        const caURL = await getCaUrl(userOrg, ccp);
+        const ca = new FabricCAServices(caURL);
+
         console.log(`An identity for the user ${username} exists in the wallet`);
+
+        console.log('secret: ', secret);
+        console.log('username: ', username);
+
+        const enrollment = await ca.enroll({ enrollmentID: username, enrollmentSecret: secret });
+        
+        console.log('enrollment: ', enrollment);
+
         return true
     }
     return false
