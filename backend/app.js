@@ -21,8 +21,11 @@ const invoke = require('./app/invoke')
 const qscc = require('./app/qscc')
 const query = require('./app/query')
 
-app.options('*', cors());
-app.use(cors());
+// app.options('*', cors());
+app.use(cors({
+    origin: 'http://localhost:3000',
+    credentials: true
+}));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({
     extended: false

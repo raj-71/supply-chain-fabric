@@ -1,0 +1,17 @@
+{
+  "short_name": "Supply Chain Management",
+  "name": "Supply Chain Management using Hyperledger Fabric",
+  "icons": [
+   
+    {
+      "src": "download.png",
+      "type": "image/png",
+      "sizes": "192x192"
+    }
+   
+  ],
+  "start_url": ".",
+  "display": "standalone",
+  "theme_color": "#000000",
+  "background_color": "#ffffff"
+}
