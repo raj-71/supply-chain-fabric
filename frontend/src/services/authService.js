@@ -38,14 +38,14 @@ export function getCurrentUser() {
     }
 }
 
-// export function getJwt() {
-//     return localStorage.getItem(tokenKey);
-// }
+export function getJwt() {
+    return localStorage.getItem(tokenKey);
+}
 
 export function getRole() {
     return localStorage.getItem(roleKey);
 }
 
-const authService = { login, logout, getCurrentUser,getRole };
+const authService = { login, logout, getCurrentUser,getRole, getJwt };
 
 export default authService;

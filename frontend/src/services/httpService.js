@@ -1,5 +1,6 @@
 import axios from "axios";
-import logService from "./logService";
+import {getJwt} from "./authService";
+// import logService from "./logService";
 
 const instance = axios.create({
   baseURL: "http://localhost:4000/",
@@ -7,18 +8,19 @@ const instance = axios.create({
   withCredentials: true,
   headers: {
     "Content-Type": "application/json",
-    'token': localStorage.getItem("token"),
+    // 'token': localStorage.getItem("token"),
+    Authorization: "Bearer " + getJwt(),
   },
 });
 
-instance.interceptors.request.use((config) => { 
-    const token = localStorage.getItem("token");
-    if(token){
-        config.headers.token = token;
-    }
+// instance.interceptors.request.use((config) => { 
+//     const token = localStorage.getItem("token");
+//     if(token){
+//         config.headers.token = token;
+//     }
 
-    return config;
- })
+//     return config;
+//  })
 
 // instance.interceptors.response.use(null, (err) => {
 //   if(err.response.status === 408){

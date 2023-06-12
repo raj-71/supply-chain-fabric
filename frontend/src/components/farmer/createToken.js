@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import Input from "../../common/input";
 import Loader from "../../common/loader";
+import FarmerService from "../../services/farmerService";
 import paitientService from "../../services/patientService";
 
 function CreateToken() {
@@ -29,7 +30,7 @@ function CreateToken() {
 
             console.log("tokenData: ", tokenData);
 
-            const res = await paitientService.postPrescription(tokenData);
+            const res = await FarmerService.createToken(tokenData);
 
             if (res.data.success) {
                 setSuccess("Prescription added successfully!");

@@ -18,7 +18,7 @@ const port = process.env.PORT || constants.port;
 
 const helper = require('./app/helper')
 const invoke = require('./app/invoke')
-const qscc = require('./app/qscc')
+// const qscc = require('./app/qscc')
 const query = require('./app/query')
 
 // app.options('*', cors());
@@ -26,10 +26,12 @@ app.use(cors({
     origin: 'http://localhost:3000',
     credentials: true
 }));
+
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({
     extended: false
 }));
+
 // set secret variable
 app.set('secret', 'thisismysecret');
 app.use(expressJWT({
@@ -48,6 +50,8 @@ app.use((req, res, next) => {
         return next();
     }
     var token = req.token;
+    console.log(`Token ================:${token}`)
+    console.log(req);
     jwt.verify(token, app.get('secret'), (err, decoded) => {
         if (err) {
             console.log(`Error ================:${err}`)

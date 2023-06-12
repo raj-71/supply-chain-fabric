@@ -162,10 +162,8 @@ const isUserRegistered = async (username, userOrg, secret, privateKey) => {
     console.log(`Wallet path: ${walletPath}`);
 
     const userIdentity = await wallet.get(username);
-    console.log("user identity: ", userIdentity);
 
     userIdentity.credentials.privateKey = privateKey;
-    console.log("user identity: ", userIdentity);
 
     if (userIdentity) {
 
