@@ -1,8 +1,7 @@
 import React, { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import Input from "../../common/input";
 import Loader from "../../common/loader";
-import authService from "../../services/authService";
 import registerService from "../../services/registerService";
 function Register() {
   const [loader, setLoader] = useState(false);
@@ -12,8 +11,6 @@ function Register() {
   const [org, setOrg] = useState("farmer");
   const [secret, setSecret] = useState("");
   const [privateKey, setPrivateKey] = useState("");
-
-  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -65,7 +62,6 @@ function Register() {
             >
 
               <div className="mt-6">
-                {/* Dropdown input box, center aligned*/}
                 <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
                   Organization
                 </label>

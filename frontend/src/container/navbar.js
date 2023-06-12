@@ -51,7 +51,7 @@ export default function Navbar() {
                     </Link>
 
                     {authService.getCurrentUser() &&
-                      authService.getRole() === "user" && (
+                      authService.getRole() === "farmer" && (
                         <>
                           <div className="hidden md:block">
                             <div className="ml-10 flex items-baseline space-x-4">

@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import Input from "../../common/input";
 import Loader from "../../common/loader";
 import authService from "../../services/authService";
 
@@ -7,8 +8,9 @@ function Login() {
   const [loader, setLoader] = useState(false);
   const [error, setError] = useState(false);
   const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
-  const [org, setOrg] = useState("patient");
+  const [secret, setSecret] = useState("");
+  const [privateKey, setPrivateKey] = useState("");
+  const [org, setOrg] = useState("farmer");
 
   const navigate = useNavigate();
 
@@ -19,10 +21,9 @@ function Login() {
     setError("");
 
     try {
-      const res = await authService.login(username, password, org);
-
-      console.log(res);
-      if (res.success) {
+      const res = await authService.login({username, orgName: org, secret, privateKey});
+      // console.log(res);
+      if (res) {
         setLoader(false);
         navigate("/dashboard");
       } else {
@@ -30,11 +31,7 @@ function Login() {
       }
     } catch (error) {
       setLoader(false);
-      if (error.response) {
-        setError(error.response.data.message);
-      } else {
-        setError("Something went wrong!");
-      }
+      setError("Something went wrong!");
     }
   };
 
@@ -50,43 +47,32 @@ function Login() {
               className="mt-4 space-y-4 lg:mt-5 md:space-y-5"
               onSubmit={(e) => handleSubmit(e)}
             >
-              <div>
-                <label
-                  htmlFor="username"
-                  className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-                >
-                  Username
-                </label>
-                <input
-                  type="text"
-                  name="username"
-                  id="username"
-                  className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                  placeholder="Username"
-                  onChange={(e) => setUsername(e.target.value)}
-                  value={username}
-                  required
-                />
-              </div>
+              <Input
+                label="Username"
+                type="text"
+                id="username"
+                required
+                value={username}
+                onChange={setUsername}
+              />
 
-              <div>
-                <label
-                  htmlFor="password"
-                  className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-                >
-                  Password
-                </label>
-                <input
-                  type="password"
-                  name="password"
-                  id="password"
-                  placeholder="Password"
-                  className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                  onChange={(e) => setPassword(e.target.value)}
-                  value={password}
-                  required
-                />
-              </div>
+              <Input
+                label="Secret"
+                type="password"
+                id="secret"
+                required
+                value={secret}
+                onChange={setSecret}
+              />
+              
+              <Input
+                label="Private Key"
+                type="text"
+                id="privateKey"
+                required
+                value={privateKey}
+                onChange={setPrivateKey}
+              />
 
               <div className="relative">
                 <label
@@ -103,12 +89,9 @@ function Login() {
                   value={org}
                   onChange={(e) => setOrg(e.target.value)}
                 >
-                  <option value={"patient"}>Patient</option>
-                  <option value={"doctor"}>Doctor</option>
-                  <option value={"lab"}>Lab</option>
-                  <option value={"pharmacy"}>Pharmacy</option>
-                  <option value={"insurance"}>Insurance</option>
-                  <option value={"Admin"}>Admin</option>
+                  <option value={"farmer"}>Farmer</option>
+                  <option value={"wholesaler"}>Wholesaler</option>
+                  <option value={"retailer"}>Retailer</option>
 
                 </select>
                 <div className="absolute inset-y-0 right-0 top-5 flex items-center pr-2 pointer-events-none">

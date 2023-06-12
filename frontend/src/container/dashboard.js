@@ -6,155 +6,79 @@ import { useEffect, useState } from "react";
 import authService from "../services/authService";
 
 function Dashboard() {
-  const [user, setUser] = useState(authService.getRole("orgName"));
+  const user = authService.getRole();
   const [apps, setApps] = useState([]);
   const [loader, setloader] = useState(false);
 
-  const patientDashboard = [
+  const farmerDashboard = [
     {
-      name: "Select Doctor",
+      name: "Create Token",
       imgSrc: Canteen,
-      link: "/select-doctor",
+      link: "/create-token",
       blocked: false,
     },
     {
-      name: "Select Pharmacy",
+      name: "Sell to Wholesaler",
       imgSrc: Canteen,
-      link: "/select-pharmacy",
+      link: "/sell-to--wholesaler",
       blocked: false,
     },
     {
-      name: "Select Lab",
+      name: "My Tokens",
       imgSrc: Canteen,
-      link: "/select-lab",
-      blocked: false,
-    },
-    {
-      name: "Select Insurance Company",
-      imgSrc: Canteen,
-      link: "/select-insurance-company",
-      blocked: false,
-    },
-    {
-      name: "Health Records",
-      imgSrc: BuyAndSell,
-      link: "/health-records",
-      blocked: false,
-    },
-    {
-      name: "Pharmacy Records",
-      imgSrc: AutoShare,
-      link: "/pharmacy-records",
-      blocked: false,
-    },
-    {
-      name: "Lab Records",
-      imgSrc: AutoShare,
-      link: "/lab-records",
-      blocked: false,
-    },
-    {
-      name: "Insurance Records",
-      imgSrc: AutoShare,
-      link: "/insurance-records",
+      link: "/my-tokens",
       blocked: false,
     }
   ];
 
-  const doctorDashboard = [
+  const wholesalerDashboard = [
     {
-      name: "Patient Records",
+      name: "Create Tokens over Token",
       imgSrc: Canteen,
-      link: "/patient-records",
+      link: "/create-tokens-over-token",
+      blocked: false,
+    },
+    {
+      name: "Sell to Retailer",
+      imgSrc: Canteen,
+      link: "/sell-to-retailer",
+      blocked: false,
+    },
+    {
+      name: "My Tokens",
+      imgSrc: Canteen,
+      link: "/my-tokens",
       blocked: false,
     }
   ];
 
-  const chemistDashboard = [
-    // {
-    //   name: "Registered Patient",
-    //   imgSrc: Canteen,
-    //   link: "/registered-patient",
-    //   blocked: false,
-    // },
-    // {
-    //   name: "Generate Bill",
-    //   imgSrc: Canteen,
-    //   link: "/generate-bill",
-    //   blocked: false,
-    // }
+  const retailerDashboard = [
     {
-      name: "Patient Records",
+      name: "Sell to Consumer",
       imgSrc: Canteen,
-      link: "/patient-records",
+      link: "/sell-to-consumer",
       blocked: false,
-    }
-  ];
-
-  const labDashboard = [
-    // {
-    //   name: "Add Reports",
-    //   imgSrc: Canteen,
-    //   link: "/add-reports",
-    //   blocked: false,
-    // }
+    },
     {
-      name: "Patient Records",
+      name: "My Tokens",
       imgSrc: Canteen,
-      link: "/patient-records",
-      blocked: false,
-    }
-  ];
-
-  const insuranceDashboard = [
-    // {
-    //   name: "Latest Requests",
-    //   imgSrc: Canteen,
-    //   link: "/latest-requests",
-    //   blocked: false,
-    // }
-    {
-      name: "Patient Records",
-      imgSrc: Canteen,
-      link: "/patient-records",
-      blocked: false,
-    }
-  ];
-
-  const adminDashboard = [
-    {
-      name: "Add User",
-      imgSrc: Canteen,
-      link: "/add-user",
+      link: "/my-tokens",
       blocked: false,
     }
   ];
 
   useEffect( () => {
 
-   
-    if (user === "patient") {
-      setApps(patientDashboard);
-    } else if (user === "doctor") {
-      setApps(doctorDashboard);
-    } else if (user === "pharmacy") {
-      setApps(chemistDashboard);
-    } else if (user === "lab") {
-      setApps(labDashboard);
-    } else if (user === "insurance") {
-      setApps(insuranceDashboard);
-    } else if (user === "Admin") {
-      setApps(adminDashboard);
+    if (user === "farmer") {
+      setApps(farmerDashboard);
+    } else if (user === "wholesaler") {
+      setApps(wholesalerDashboard);
+    } else if (user === "retailer") {
+      setApps(retailerDashboard);
     }
     setloader(true)
-    
 
-   
-    
   },[user]);
-
-
-  
 
   const navigate = useNavigate();
 
@@ -180,11 +104,6 @@ function Dashboard() {
                     // to={`${app.link}`}
                     className="scale-90 md:scale-100 border-2 rounded-3xl flex flex-col justify-center sm:mt-10 mx-5 md:mx-5 items-center border-blue-100  p-10 text-xl hover:border-blue-200 cursor-pointer hover:bg-blue-50 transition delay-100 hover:scale-90 md:hover:scale-110"
                   >
-                    {/* <img
-                  src={app.imgSrc}
-                  className="object-scale-down h-28 w-32 mb-5 "
-                  alt={`${app.name}`}
-                /> */}
                     {app.name}
                   </div>
                 </div>

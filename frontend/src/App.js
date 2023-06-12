@@ -7,6 +7,7 @@ import Login from "./components/login/login";
 import Register from "./components/login/register";
 import Dashboard from "./container/dashboard";
 import Logout from "./container/logout";
+import CreateToken from "./components/farmer/createToken";
 function App() {
 
   // console.log = function(){};
@@ -16,12 +17,12 @@ function App() {
       <Navbar />
       <Routes>
         <Route path="/" element={<Home />} />
-        <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
+        <Route path="/login" element={<Login />} />
         <Route path="/dashboard" element={<Dashboard />} />
 
         {/*farmer */}
-        <Route path="/create-token" element={<Dashboard />} />
+        <Route path="/create-token" element={<CreateToken />} />
         <Route path="/my-tokens" element={<Dashboard />} />
         <Route path="/sell-to-wholesaler" element={<Dashboard />} />
 

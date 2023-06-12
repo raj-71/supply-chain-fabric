@@ -7,23 +7,18 @@ const tokenKey = "token";
 const roleKey = "orgName";
 const userid = "userid";
 
-export async function login(username, password, org) {
-    const {data : res} = await http.post(apiLogin, { username, password, orgName: org });
+export async function login(data) {
+    const res = await http.post(apiLogin, data);
 
-    localStorage.setItem(tokenKey, res.token);
-    localStorage.setItem(roleKey, res.orgName);
-    localStorage.setItem(userid, res.userId);
-    
+    console.log(res);
+
+    if (res.data.success) {
+        localStorage.setItem(tokenKey, res.data.message.token);
+        localStorage.setItem(roleKey, data.orgName);
+        return true;
+    }
+
     return res;
-}
-
-export async function verifyUser() {
-    const token = localStorage.getItem(tokenKey);
-    localStorage.setItem(tokenKey, token);
-}
-
-export async function loginWithJwt(jwt) {
-    localStorage.setItem(tokenKey, jwt);
 }
 
 export async function logout() {
@@ -43,17 +38,14 @@ export function getCurrentUser() {
     }
 }
 
-export function getJwt() {
-    return localStorage.getItem(tokenKey);
-}
+// export function getJwt() {
+//     return localStorage.getItem(tokenKey);
+// }
 
 export function getRole() {
     return localStorage.getItem(roleKey);
 }
-export function getId() {
-    return localStorage.getItem(userid);
-}
 
-const authService = { login, loginWithJwt, logout, getCurrentUser, getJwt, verifyUser, getRole, getId };
+const authService = { login, logout, getCurrentUser,getRole };
 
 export default authService;
