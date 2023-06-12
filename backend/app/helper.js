@@ -51,7 +51,6 @@ const getWalletPath = async (org) => {
     return walletPath;
 }
 
-
 const getAffiliation = async (org) => {
     // console.log("inside getAffiliation method, org: ", org);
     
@@ -157,12 +156,17 @@ const getRegisteredUser = async (username, userOrg, isJson) => {
     return response
 }
 
-const isUserRegistered = async (username, userOrg, secret) => {
+const isUserRegistered = async (username, userOrg, secret, privateKey) => {
     const walletPath = await getWalletPath(userOrg)
     const wallet = await Wallets.newFileSystemWallet(walletPath);
     console.log(`Wallet path: ${walletPath}`);
 
     const userIdentity = await wallet.get(username);
+    console.log("user identity: ", userIdentity);
+
+    userIdentity.credentials.privateKey = privateKey;
+    console.log("user identity: ", userIdentity);
+
     if (userIdentity) {
 
         let ccp = await getCCP(userOrg);
@@ -183,7 +187,6 @@ const isUserRegistered = async (username, userOrg, secret) => {
     }
     return false
 }
-
 
 const getCaInfo = async (org, ccp) => {
     let caInfo;
@@ -230,7 +233,7 @@ const enrollAdmin = async (org, ccp) => {
 
         // Enroll the admin user, and import the new identity into the wallet.
         const enrollment = await ca.enroll({ enrollmentID: 'admin', enrollmentSecret: 'adminpw' });
-        console.log("Enrollment object is : ", enrollment)
+        // console.log("Enrollment object is : ", enrollment)
         let x509Identity;
         if (org == "farmer") {
             x509Identity = {
@@ -283,6 +286,7 @@ const registerAndGerSecret = async (username, userOrg) => {
 
     const userIdentity = await wallet.get(username);
     console.log("userIdentity : ", userIdentity);
+
     if (userIdentity) {
         console.log(`An identity for the user ${username} already exists in the wallet`);
         var response = {
@@ -294,7 +298,7 @@ const registerAndGerSecret = async (username, userOrg) => {
 
     // Check to see if we've already enrolled the admin user.
     let adminIdentity = await wallet.get('admin');
-    console.log("adminIdentity : ", adminIdentity);
+    // console.log("adminIdentity : ", adminIdentity);po
     if (!adminIdentity) {
         console.log('An identity for the admin user "admin" does not exist in the wallet');
         await enrollAdmin(userOrg, ccp);
@@ -306,6 +310,7 @@ const registerAndGerSecret = async (username, userOrg) => {
     const provider = wallet.getProviderRegistry().getProvider(adminIdentity.type);
     const adminUser = await provider.getUserContext(adminIdentity, 'admin');
     let secret;
+    let privateKey;
     try {
         // Register the user, enroll the user, and import the new identity into the wallet.
         secret = await ca.register({ affiliation: await getAffiliation(userOrg), enrollmentID: username, role: 'client', maxEnrollments: -1 }, adminUser);
@@ -315,11 +320,12 @@ const registerAndGerSecret = async (username, userOrg) => {
             enrollmentID: username,
             enrollmentSecret: secret
         });
-        let orgMSPId = getOrgMSP(userOrg)
+        let orgMSPId = getOrgMSP(userOrg);
+        privateKey = enrollment.key.toBytes();
         const x509Identity = {
             credentials: {
                 certificate: enrollment.certificate,
-                privateKey: enrollment.key.toBytes(),
+                // privateKey: privateKey,
             },
             mspId: orgMSPId,
             type: 'X.509',
@@ -336,7 +342,8 @@ const registerAndGerSecret = async (username, userOrg) => {
     var response = {
         success: true,
         message: username + ' enrolled Successfully',
-        secret: secret
+        secret: secret,
+        privateKey: privateKey
     };
     return response
 

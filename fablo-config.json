@@ -3,7 +3,8 @@
   "global": {
     "fabricVersion": "2.4.0",
     "tls": false,
-    "peerDevMode": false
+    "peerDevMode": false,
+    "explorer": true
   },
   "orgs": [
     {

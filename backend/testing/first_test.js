@@ -7,62 +7,68 @@ chai.use(chaiHttp);
 
 var token;
 let nft;
+let secret = [];
 
 describe("First test", () => {
-	// it("register farmer -> farmer1", (done) => {
-	// 	const user = {
-	// 		username: "farmer1",
-	// 		orgName: "farmer",
-	// 	};
-
-	// 	chai
-	// 		.request(baseUrl)
-	// 		.post("/register")
-	// 		.set("Content-Type", "application/json")
-	// 		.send(user)
-	// 		.end((err, res) => {
-	// 			if (err) {
-	// 				console.log("#################");
-	// 				console.log("ERROR: ", err);
-	// 				console.log("#################");
-	// 				done();
-	// 			} else {
-	// 				expect(res.body).to.have.property("success").equal(true);
-	// 				expect(res.body).to.have.property("token");
-	// 				done();
-	// 			}
-	// 		});
-	// });
-
-	// it("register farmer -> farmer2", (done) => {
-	// 	const user = {
-	// 		username: "farmer2",
-	// 		orgName: "farmer",
-	// 	};
-
-	// 	chai
-	// 		.request(baseUrl)
-	// 		.post("/register")
-	// 		.set("Content-Type", "application/json")
-	// 		.send(user)
-	// 		.end((err, res) => {
-	// 			if (err) {
-	// 				console.log("#################");
-	// 				console.log("ERROR: ", err);
-	// 				console.log("#################");
-	// 				done();
-	// 			} else {
-	// 				expect(res.body).to.have.property("success").equal(true);
-	// 				expect(res.body).to.have.property("token");
-	// 				done();
-	// 			}
-	// 		});
-	// });
-
-	it("enroll farmer1", (done) => {
+	it("register farmer -> farmer01", (done) => {
 		const user = {
-			username: "farmer1",
+			username: "farmer01",
 			orgName: "farmer",
+		};
+
+		chai
+			.request(baseUrl)
+			.post("/register")
+			.set("Content-Type", "application/json")
+			.send(user)
+			.end((err, res) => {
+				if (err) {
+					console.log("#################");
+					console.log("ERROR: ", err);
+					console.log("#################");
+					done();
+				} else {
+					expect(res.body).to.have.property("success").equal(true);
+					expect(res.body).to.have.property("token");
+					expect(res.body).to.have.property("secret");
+					secret.push(res.body.secret);
+					done();
+				}
+			});
+	});
+
+	it("register farmer -> farmer02", (done) => {
+		const user = {
+			username: "farmer02",
+			orgName: "farmer",
+		};
+
+		chai
+			.request(baseUrl)
+			.post("/register")
+			.set("Content-Type", "application/json")
+			.send(user)
+			.end((err, res) => {
+				if (err) {
+					console.log("#################");
+					console.log("ERROR: ", err);
+					console.log("#################");
+					done();
+				} else {
+					expect(res.body).to.have.property("success").equal(true);
+					expect(res.body).to.have.property("token");
+					expect(res.body).to.have.property("secret");
+					secret.push(res.body.secret);
+					done();
+				}
+			});
+	});
+
+	it("enroll farmer01", (done) => {
+		const user = {
+			username: "farmer01",
+			orgName: "farmer",
+			secret: secret[0]
 		};
 
 		chai
@@ -109,7 +115,7 @@ describe("First test", () => {
 			fcn: "transferFrom",
 			chaincodeName: "token",
 			channelName: "mychannel",
-			args: ["x509::/OU=client/OU=farmer/OU=department1/CN=farmer2::/C=US/ST=California/L=San Francisco/O=farmer.supplychain.com/CN=ca.farmer.supplychain.com", nft]
+			args: ["x509::/OU=client/OU=farmer/OU=department1/CN=farmer02::/C=US/ST=California/L=San Francisco/O=farmer.supplychain.com/CN=ca.farmer.supplychain.com", nft]
 		}
 
 		chai.request(baseUrl)
@@ -124,10 +130,11 @@ describe("First test", () => {
 	});
 
 
-	it("enroll farmer2", (done) => {
+	it("enroll farmer02", (done) => {
 		const user = {
-			username: "farmer2",
+			username: "farmer02",
 			orgName: "farmer",
+			secret: secret[1]
 		};
 
 		chai
