@@ -178,63 +178,63 @@ services:
     networks:
       - basic
 
-  ca.seller.supplychain.com:
-    container_name: ca.seller.supplychain.com
+  ca.wholesaler.supplychain.com:
+    container_name: ca.wholesaler.supplychain.com
     image: hyperledger/fabric-ca:${FABRIC_CA_VERSION}
     environment:
       - FABRIC_CA_HOME=/etc/hyperledger/fabric-ca-server
-      - FABRIC_CA_SERVER_CA_NAME=ca.seller.supplychain.com
-      - FABRIC_CA_SERVER_CA_CERTFILE=/etc/hyperledger/fabric-ca-server/crypto/ca.seller.supplychain.com-cert.pem
+      - FABRIC_CA_SERVER_CA_NAME=ca.wholesaler.supplychain.com
+      - FABRIC_CA_SERVER_CA_CERTFILE=/etc/hyperledger/fabric-ca-server/crypto/ca.wholesaler.supplychain.com-cert.pem
       - FABRIC_CA_SERVER_CA_KEYFILE=/etc/hyperledger/fabric-ca-server/crypto/priv-key.pem
       - FABRIC_LOGGING_SPEC=${LOGGING_LEVEL}
     ports:
       - 7060:7054
     working_dir: /etc/hyperledger/fabric-ca-server
-    command: sh -c 'fabric-ca-server start -b ${SELLER_CA_ADMIN_NAME}:${SELLER_CA_ADMIN_PASSWORD} -d'
+    command: sh -c 'fabric-ca-server start -b ${WHOLESALER_CA_ADMIN_NAME}:${WHOLESALER_CA_ADMIN_PASSWORD} -d'
     volumes:
-      - ../fabric-config/crypto-config/peerOrganizations/seller.supplychain.com/ca/:/etc/hyperledger/fabric-ca-server/crypto
-      - ../fabric-config/fabric-ca-server-config/seller.supplychain.com/fabric-ca-server-config.yaml:/etc/hyperledger/fabric-ca-server/fabric-ca-server-config.yaml
+      - ../fabric-config/crypto-config/peerOrganizations/wholesaler.supplychain.com/ca/:/etc/hyperledger/fabric-ca-server/crypto
+      - ../fabric-config/fabric-ca-server-config/wholesaler.supplychain.com/fabric-ca-server-config.yaml:/etc/hyperledger/fabric-ca-server/fabric-ca-server-config.yaml
     networks:
       - basic
 
-  cli.seller.supplychain.com:
-    container_name: cli.seller.supplychain.com
+  cli.wholesaler.supplychain.com:
+    container_name: cli.wholesaler.supplychain.com
     image: hyperledger/fabric-tools:${FABRIC_VERSION}
     tty: true
     environment:
       - GOPATH=/opt/gopath
       - CORE_VM_ENDPOINT=unix:///host/var/run/docker.sock
       - FABRIC_LOGGING_SPEC=${LOGGING_LEVEL}
-      - CORE_PEER_ID=cli.seller.supplychain.com
+      - CORE_PEER_ID=cli.wholesaler.supplychain.com
       - CORE_CHAINCODE_KEEPALIVE=10
       #
-      - CORE_PEER_LOCALMSPID=sellerMSP
-      - CORE_PEER_MSPCONFIGPATH=/var/hyperledger/cli/crypto/users/Admin@seller.supplychain.com/msp
-      - CORE_PEER_ADDRESS=peer0.seller.supplychain.com:7061
+      - CORE_PEER_LOCALMSPID=wholesalerMSP
+      - CORE_PEER_MSPCONFIGPATH=/var/hyperledger/cli/crypto/users/Admin@wholesaler.supplychain.com/msp
+      - CORE_PEER_ADDRESS=peer0.wholesaler.supplychain.com:7061
     working_dir: /var/hyperledger/cli/
     command: /bin/bash
     volumes:
       - /var/run/docker.sock:/host/var/run/docker.sock
       - ../fabric-docker/scripts/cli:/var/hyperledger/cli/scripts/
       - ../fabric-config/config:/var/hyperledger/cli/config/ # genesis.block and channel.tx's
-      - ../fabric-config/crypto-config/peerOrganizations/seller.supplychain.com:/var/hyperledger/cli/crypto/
+      - ../fabric-config/crypto-config/peerOrganizations/wholesaler.supplychain.com:/var/hyperledger/cli/crypto/
       - ../fabric-config/chaincode-packages:/var/hyperledger/cli/chaincode-packages/
       - "$CHAINCODES_BASE_DIR/./chaincodes/chaincode-kv-node/:/var/hyperledger/cli/chaincode1/"
     networks:
       - basic
 
-  peer0.seller.supplychain.com:
-    container_name: peer0.seller.supplychain.com
+  peer0.wholesaler.supplychain.com:
+    container_name: peer0.wholesaler.supplychain.com
     image: hyperledger/fabric-peer:${FABRIC_VERSION}
     environment:
-      - CORE_PEER_LOCALMSPID=sellerMSP
-      - CORE_PEER_ID=peer0.seller.supplychain.com
-      - CORE_PEER_ADDRESS=peer0.seller.supplychain.com:7061
-      - CORE_PEER_LISTENADDRESS=peer0.seller.supplychain.com:7061
-      - CORE_PEER_GOSSIP_ENDPOINT=peer0.seller.supplychain.com:7061
-      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0.seller.supplychain.com:7061
-      - CORE_PEER_GOSSIP_BOOTSTRAP=peer0.seller.supplychain.com:7061
-      - CORE_PEER_CHAINCODELISTENADDRESS=peer0.seller.supplychain.com:7050
+      - CORE_PEER_LOCALMSPID=wholesalerMSP
+      - CORE_PEER_ID=peer0.wholesaler.supplychain.com
+      - CORE_PEER_ADDRESS=peer0.wholesaler.supplychain.com:7061
+      - CORE_PEER_LISTENADDRESS=peer0.wholesaler.supplychain.com:7061
+      - CORE_PEER_GOSSIP_ENDPOINT=peer0.wholesaler.supplychain.com:7061
+      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0.wholesaler.supplychain.com:7061
+      - CORE_PEER_GOSSIP_BOOTSTRAP=peer0.wholesaler.supplychain.com:7061
+      - CORE_PEER_CHAINCODELISTENADDRESS=peer0.wholesaler.supplychain.com:7050
       - CORE_PEER_MSPCONFIGPATH=/etc/hyperledger/fabric/peer/msp
       - CORE_CHAINCODE_BUILDER=hyperledger/fabric-ccenv:${FABRIC_CCENV_VERSION}
       - CORE_CHAINCODE_GOLANG_RUNTIME=hyperledger/fabric-baseos:${FABRIC_BASEOS_VERSION}
@@ -244,7 +244,7 @@ services:
       - CORE_CHAINCODE_LOGGING_SHIM=${LOGGING_LEVEL}
       - FABRIC_LOGGING_SPEC=${LOGGING_LEVEL}
       # metrics
-      - CORE_OPERATIONS_LISTENADDRESS=peer0.seller.supplychain.com:9440
+      - CORE_OPERATIONS_LISTENADDRESS=peer0.wholesaler.supplychain.com:9440
       - CORE_METRICS_PROVIDER=prometheus
       #
       - CORE_VM_DOCKER_HOSTCONFIG_NETWORKMODE=${COMPOSE_PROJECT_NAME}_basic
@@ -253,7 +253,7 @@ services:
       - GODEBUG=netdns=go
       # CouchDB
       - CORE_LEDGER_STATE_STATEDATABASE=CouchDB
-      - CORE_LEDGER_STATE_COUCHDBCONFIG_COUCHDBADDRESS=couchdb.peer0.seller.supplychain.com:5984
+      - CORE_LEDGER_STATE_COUCHDBCONFIG_COUCHDBADDRESS=couchdb.peer0.wholesaler.supplychain.com:5984
       - CORE_LEDGER_STATE_COUCHDBCONFIG_USERNAME=peer0
       - CORE_LEDGER_STATE_COUCHDBCONFIG_PASSWORD=peer0Password
       # enabled gateway
@@ -265,15 +265,15 @@ services:
       - 7061:7061
     volumes:
       - /var/run/docker.sock:/host/var/run/docker.sock
-      - ../fabric-config/crypto-config/peerOrganizations/seller.supplychain.com/peers/peer0.seller.supplychain.com/msp:/etc/hyperledger/fabric/peer/msp
-      - ../fabric-config/crypto-config/peerOrganizations/seller.supplychain.com/peers/peer0.seller.supplychain.com/tls:/etc/hyperledger/fabric/peer/tls
-      - ../fabric-config/crypto-config/peerOrganizations/seller.supplychain.com/users:/etc/hyperledger/fabric/peer/msp/users
+      - ../fabric-config/crypto-config/peerOrganizations/wholesaler.supplychain.com/peers/peer0.wholesaler.supplychain.com/msp:/etc/hyperledger/fabric/peer/msp
+      - ../fabric-config/crypto-config/peerOrganizations/wholesaler.supplychain.com/peers/peer0.wholesaler.supplychain.com/tls:/etc/hyperledger/fabric/peer/tls
+      - ../fabric-config/crypto-config/peerOrganizations/wholesaler.supplychain.com/users:/etc/hyperledger/fabric/peer/msp/users
       - ../fabric-config/config:/etc/hyperledger/fabric/config
     networks:
       - basic
 
-  couchdb.peer0.seller.supplychain.com:
-    container_name: couchdb.peer0.seller.supplychain.com
+  couchdb.peer0.wholesaler.supplychain.com:
+    container_name: couchdb.peer0.wholesaler.supplychain.com
     image: couchdb:${COUCHDB_VERSION}
     environment:
       - COUCHDB_USER=peer0
@@ -283,63 +283,63 @@ services:
     networks:
       - basic
 
-  ca.consumer.supplychain.com:
-    container_name: ca.consumer.supplychain.com
+  ca.retailer.supplychain.com:
+    container_name: ca.retailer.supplychain.com
     image: hyperledger/fabric-ca:${FABRIC_CA_VERSION}
     environment:
       - FABRIC_CA_HOME=/etc/hyperledger/fabric-ca-server
-      - FABRIC_CA_SERVER_CA_NAME=ca.consumer.supplychain.com
-      - FABRIC_CA_SERVER_CA_CERTFILE=/etc/hyperledger/fabric-ca-server/crypto/ca.consumer.supplychain.com-cert.pem
+      - FABRIC_CA_SERVER_CA_NAME=ca.retailer.supplychain.com
+      - FABRIC_CA_SERVER_CA_CERTFILE=/etc/hyperledger/fabric-ca-server/crypto/ca.retailer.supplychain.com-cert.pem
       - FABRIC_CA_SERVER_CA_KEYFILE=/etc/hyperledger/fabric-ca-server/crypto/priv-key.pem
       - FABRIC_LOGGING_SPEC=${LOGGING_LEVEL}
     ports:
       - 7080:7054
     working_dir: /etc/hyperledger/fabric-ca-server
-    command: sh -c 'fabric-ca-server start -b ${CONSUMER_CA_ADMIN_NAME}:${CONSUMER_CA_ADMIN_PASSWORD} -d'
+    command: sh -c 'fabric-ca-server start -b ${RETAILER_CA_ADMIN_NAME}:${RETAILER_CA_ADMIN_PASSWORD} -d'
     volumes:
-      - ../fabric-config/crypto-config/peerOrganizations/consumer.supplychain.com/ca/:/etc/hyperledger/fabric-ca-server/crypto
-      - ../fabric-config/fabric-ca-server-config/consumer.supplychain.com/fabric-ca-server-config.yaml:/etc/hyperledger/fabric-ca-server/fabric-ca-server-config.yaml
+      - ../fabric-config/crypto-config/peerOrganizations/retailer.supplychain.com/ca/:/etc/hyperledger/fabric-ca-server/crypto
+      - ../fabric-config/fabric-ca-server-config/retailer.supplychain.com/fabric-ca-server-config.yaml:/etc/hyperledger/fabric-ca-server/fabric-ca-server-config.yaml
     networks:
       - basic
 
-  cli.consumer.supplychain.com:
-    container_name: cli.consumer.supplychain.com
+  cli.retailer.supplychain.com:
+    container_name: cli.retailer.supplychain.com
     image: hyperledger/fabric-tools:${FABRIC_VERSION}
     tty: true
     environment:
       - GOPATH=/opt/gopath
       - CORE_VM_ENDPOINT=unix:///host/var/run/docker.sock
       - FABRIC_LOGGING_SPEC=${LOGGING_LEVEL}
-      - CORE_PEER_ID=cli.consumer.supplychain.com
+      - CORE_PEER_ID=cli.retailer.supplychain.com
       - CORE_CHAINCODE_KEEPALIVE=10
       #
-      - CORE_PEER_LOCALMSPID=consumerMSP
-      - CORE_PEER_MSPCONFIGPATH=/var/hyperledger/cli/crypto/users/Admin@consumer.supplychain.com/msp
-      - CORE_PEER_ADDRESS=peer0.consumer.supplychain.com:7081
+      - CORE_PEER_LOCALMSPID=retailerMSP
+      - CORE_PEER_MSPCONFIGPATH=/var/hyperledger/cli/crypto/users/Admin@retailer.supplychain.com/msp
+      - CORE_PEER_ADDRESS=peer0.retailer.supplychain.com:7081
     working_dir: /var/hyperledger/cli/
     command: /bin/bash
     volumes:
       - /var/run/docker.sock:/host/var/run/docker.sock
       - ../fabric-docker/scripts/cli:/var/hyperledger/cli/scripts/
       - ../fabric-config/config:/var/hyperledger/cli/config/ # genesis.block and channel.tx's
-      - ../fabric-config/crypto-config/peerOrganizations/consumer.supplychain.com:/var/hyperledger/cli/crypto/
+      - ../fabric-config/crypto-config/peerOrganizations/retailer.supplychain.com:/var/hyperledger/cli/crypto/
       - ../fabric-config/chaincode-packages:/var/hyperledger/cli/chaincode-packages/
       - "$CHAINCODES_BASE_DIR/./chaincodes/chaincode-kv-node/:/var/hyperledger/cli/chaincode1/"
     networks:
       - basic
 
-  peer0.consumer.supplychain.com:
-    container_name: peer0.consumer.supplychain.com
+  peer0.retailer.supplychain.com:
+    container_name: peer0.retailer.supplychain.com
     image: hyperledger/fabric-peer:${FABRIC_VERSION}
     environment:
-      - CORE_PEER_LOCALMSPID=consumerMSP
-      - CORE_PEER_ID=peer0.consumer.supplychain.com
-      - CORE_PEER_ADDRESS=peer0.consumer.supplychain.com:7081
-      - CORE_PEER_LISTENADDRESS=peer0.consumer.supplychain.com:7081
-      - CORE_PEER_GOSSIP_ENDPOINT=peer0.consumer.supplychain.com:7081
-      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0.consumer.supplychain.com:7081
-      - CORE_PEER_GOSSIP_BOOTSTRAP=peer0.consumer.supplychain.com:7081
-      - CORE_PEER_CHAINCODELISTENADDRESS=peer0.consumer.supplychain.com:7050
+      - CORE_PEER_LOCALMSPID=retailerMSP
+      - CORE_PEER_ID=peer0.retailer.supplychain.com
+      - CORE_PEER_ADDRESS=peer0.retailer.supplychain.com:7081
+      - CORE_PEER_LISTENADDRESS=peer0.retailer.supplychain.com:7081
+      - CORE_PEER_GOSSIP_ENDPOINT=peer0.retailer.supplychain.com:7081
+      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0.retailer.supplychain.com:7081
+      - CORE_PEER_GOSSIP_BOOTSTRAP=peer0.retailer.supplychain.com:7081
+      - CORE_PEER_CHAINCODELISTENADDRESS=peer0.retailer.supplychain.com:7050
       - CORE_PEER_MSPCONFIGPATH=/etc/hyperledger/fabric/peer/msp
       - CORE_CHAINCODE_BUILDER=hyperledger/fabric-ccenv:${FABRIC_CCENV_VERSION}
       - CORE_CHAINCODE_GOLANG_RUNTIME=hyperledger/fabric-baseos:${FABRIC_BASEOS_VERSION}
@@ -349,7 +349,7 @@ services:
       - CORE_CHAINCODE_LOGGING_SHIM=${LOGGING_LEVEL}
       - FABRIC_LOGGING_SPEC=${LOGGING_LEVEL}
       # metrics
-      - CORE_OPERATIONS_LISTENADDRESS=peer0.consumer.supplychain.com:9440
+      - CORE_OPERATIONS_LISTENADDRESS=peer0.retailer.supplychain.com:9440
       - CORE_METRICS_PROVIDER=prometheus
       #
       - CORE_VM_DOCKER_HOSTCONFIG_NETWORKMODE=${COMPOSE_PROJECT_NAME}_basic
@@ -358,7 +358,7 @@ services:
       - GODEBUG=netdns=go
       # CouchDB
       - CORE_LEDGER_STATE_STATEDATABASE=CouchDB
-      - CORE_LEDGER_STATE_COUCHDBCONFIG_COUCHDBADDRESS=couchdb.peer0.consumer.supplychain.com:5984
+      - CORE_LEDGER_STATE_COUCHDBCONFIG_COUCHDBADDRESS=couchdb.peer0.retailer.supplychain.com:5984
       - CORE_LEDGER_STATE_COUCHDBCONFIG_USERNAME=peer0
       - CORE_LEDGER_STATE_COUCHDBCONFIG_PASSWORD=peer0Password
       # enabled gateway
@@ -370,15 +370,15 @@ services:
       - 7081:7081
     volumes:
       - /var/run/docker.sock:/host/var/run/docker.sock
-      - ../fabric-config/crypto-config/peerOrganizations/consumer.supplychain.com/peers/peer0.consumer.supplychain.com/msp:/etc/hyperledger/fabric/peer/msp
-      - ../fabric-config/crypto-config/peerOrganizations/consumer.supplychain.com/peers/peer0.consumer.supplychain.com/tls:/etc/hyperledger/fabric/peer/tls
-      - ../fabric-config/crypto-config/peerOrganizations/consumer.supplychain.com/users:/etc/hyperledger/fabric/peer/msp/users
+      - ../fabric-config/crypto-config/peerOrganizations/retailer.supplychain.com/peers/peer0.retailer.supplychain.com/msp:/etc/hyperledger/fabric/peer/msp
+      - ../fabric-config/crypto-config/peerOrganizations/retailer.supplychain.com/peers/peer0.retailer.supplychain.com/tls:/etc/hyperledger/fabric/peer/tls
+      - ../fabric-config/crypto-config/peerOrganizations/retailer.supplychain.com/users:/etc/hyperledger/fabric/peer/msp/users
       - ../fabric-config/config:/etc/hyperledger/fabric/config
     networks:
       - basic
 
-  couchdb.peer0.consumer.supplychain.com:
-    container_name: couchdb.peer0.consumer.supplychain.com
+  couchdb.peer0.retailer.supplychain.com:
+    container_name: couchdb.peer0.retailer.supplychain.com
     image: couchdb:${COUCHDB_VERSION}
     environment:
       - COUCHDB_USER=peer0

@@ -4,13 +4,13 @@
       "name": "Network of farmer",
       "profile": "/opt/explorer/app/platform/fabric/connection-profile/connection-profile-farmer.json"
     },
-    "network-seller": {
-      "name": "Network of seller",
-      "profile": "/opt/explorer/app/platform/fabric/connection-profile/connection-profile-seller.json"
+    "network-wholesaler": {
+      "name": "Network of wholesaler",
+      "profile": "/opt/explorer/app/platform/fabric/connection-profile/connection-profile-wholesaler.json"
     },
-    "network-consumer": {
-      "name": "Network of consumer",
-      "profile": "/opt/explorer/app/platform/fabric/connection-profile/connection-profile-consumer.json"
+    "network-retailer": {
+      "name": "Network of retailer",
+      "profile": "/opt/explorer/app/platform/fabric/connection-profile/connection-profile-retailer.json"
     }
   },
   "license": "Apache-2.0"

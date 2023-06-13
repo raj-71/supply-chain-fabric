@@ -10,8 +10,8 @@
       "mspid": "OrdererMSP",
       "peers": [
         "peer0.farmer.supplychain.com",
-        "peer0.seller.supplychain.com",
-        "peer0.consumer.supplychain.com"
+        "peer0.wholesaler.supplychain.com",
+        "peer0.retailer.supplychain.com"
       ],
       "certificateAuthorities": [
         "ca.orderer.supplychain.com"
@@ -22,10 +22,10 @@
     "peer0.farmer.supplychain.com": {
       "url": "grpc://localhost:7041"
     },
-    "peer0.seller.supplychain.com": {
+    "peer0.wholesaler.supplychain.com": {
       "url": "grpc://localhost:7061"
     },
-    "peer0.consumer.supplychain.com": {
+    "peer0.retailer.supplychain.com": {
       "url": "grpc://localhost:7081"
     }
   },

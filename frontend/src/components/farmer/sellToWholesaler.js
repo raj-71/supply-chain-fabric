@@ -4,7 +4,7 @@ import Loader from "../../common/loader";
 import PromptPrivateKey from "../../common/promptPrivateKey";
 import FarmerService from "../../services/farmerService";
 
-function CreateToken() {
+function SellToWholesaler() {
     const [loader, setLoader] = useState(false);
     const [error, setError] = useState(false);
     const [success, setSuccess] = useState(false);
@@ -12,11 +12,8 @@ function CreateToken() {
     const [promptPrivateKeyModal, setPromptPrivateKeyModal] = useState(false);
     const [privateKey, setPrivateKey] = useState("");
 
-    const [productName, setProductName] = useState("");
-    const [placeOfOrigin, setPlaceOfOrigin] = useState("");
-    const [quantity, setQuantity] = useState("");
-
     const [tokenId, setTokenId] = useState("");
+    const [wholesalerId, setWholesalerId] = useState("");
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -30,25 +27,17 @@ function CreateToken() {
 
     const sendRequest = async () => {
         try {
-            let tokenData = {
-                productName,
-                placeOfOrigin,
-                quantity,
-                productionDate: new Date().toISOString(),
-            }
-
-            console.log("tokenData: ", tokenData);
+            console.log("tokenId: ", tokenId, "wholesalerId: ", wholesalerId);
             console.log("privateKey: ", privateKey);
 
-            const res = await FarmerService.createToken(tokenData, privateKey);
+            const res = await FarmerService.sellToWholesaler(tokenId, wholesalerId, privateKey);
             
-            console.log("response: ", res);
+            console.log("response: ", res.data);
 
             if (res.data.success) {
-                setSuccess("Token Created Successfully!");
+                setSuccess("Token Transfered Successfully!");
                 setError("");
                 setLoader(false);
-                setTokenId(res.data.message.result.txid);
                 console.log("response data");
                 console.log(res.data);
             }
@@ -69,37 +58,28 @@ function CreateToken() {
                 <div className="flex flex-col items-center justify-center px-6 mx-auto lg:py-0">
                     <div className="w-full p-6 bg-white rounded-lg shadow dark:border md:mt-0 sm:max-w-md dark:bg-gray-800 dark:border-gray-700 sm:p-8">
                         <h2 className="mb-1 text-xl text-center font-bold leading-tight tracking-tight text-gray-900 md:text-2xl dark:text-white">
-                            Create Token
+                            Sell to Wholesaler
                         </h2>
                         <form
                             className="mt-4 space-y-4 lg:mt-5 md:space-y-5"
                             onSubmit={(e) => handleSubmit(e)}
                         >
                             <Input
-                                label="Product Name"
+                                label="Token Id"
                                 type="text"
-                                id="productName"
+                                id="tokenId"
                                 required
-                                value={productName}
-                                onChange={setProductName}
+                                value={tokenId}
+                                onChange={setTokenId}
                             />
 
                             <Input
-                                label="Place of Origin"
+                                label="Wholesaler Username"
                                 type="text"
-                                id="placeOfOrigin"
+                                id="wholesalerId"
                                 required
-                                value={placeOfOrigin}
-                                onChange={setPlaceOfOrigin}
-                            />
-
-                            <Input
-                                label="Quantity (in kg)"
-                                type="number"
-                                id="quantity"
-                                required
-                                value={quantity}
-                                onChange={setQuantity}
+                                value={wholesalerId}
+                                onChange={setWholesalerId}
                             />
 
                             {error ? (
@@ -112,9 +92,6 @@ function CreateToken() {
                                 <div className="text-green-500 text-sm text-center  ">
                                     {success}
                                 </div>
-                                <div className="text-gray-50 text-md text-center  ">
-                                    Token ID: {tokenId}
-                                    </div>
                                 </>
                             ) : null}
 
@@ -135,4 +112,4 @@ function CreateToken() {
         </>
     );
 }
-export default CreateToken;
+export default SellToWholesaler;

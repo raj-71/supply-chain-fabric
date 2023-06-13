@@ -8,6 +8,7 @@ import Register from "./components/login/register";
 import Dashboard from "./container/dashboard";
 import Logout from "./container/logout";
 import CreateToken from "./components/farmer/createToken";
+import SellToWholesaler from "./components/farmer/sellToWholesaler";
 function App() {
 
   // console.log = function(){};
@@ -24,7 +25,7 @@ function App() {
         {/*farmer */}
         <Route path="/create-token" element={<CreateToken />} />
         <Route path="/my-tokens" element={<Dashboard />} />
-        <Route path="/sell-to-wholesaler" element={<Dashboard />} />
+        <Route path="/sell-to-wholesaler" element={<SellToWholesaler />} />
 
         {/*wholesaler */}
         <Route path="/create-tokens-over-token" element={<Dashboard />} />

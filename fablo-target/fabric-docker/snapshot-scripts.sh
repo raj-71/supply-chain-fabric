@@ -4,8 +4,8 @@ __getOrdererAndPeerNodes() {
   echo "
       orderer0.group1.orderer.supplychain.com
       peer0.farmer.supplychain.com
-      peer0.seller.supplychain.com
-      peer0.consumer.supplychain.com
+      peer0.wholesaler.supplychain.com
+      peer0.retailer.supplychain.com
   "
 }
 
@@ -13,8 +13,8 @@ __getCASQLiteNodes() {
   echo "
       ca.orderer.supplychain.com
       ca.farmer.supplychain.com
-      ca.seller.supplychain.com
-      ca.consumer.supplychain.com
+      ca.wholesaler.supplychain.com
+      ca.retailer.supplychain.com
   "
 }
 

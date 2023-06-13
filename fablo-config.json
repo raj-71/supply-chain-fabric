@@ -38,8 +38,8 @@
     },
     {
       "organization": {
-        "name": "seller",
-        "domain": "seller.supplychain.com"
+        "name": "wholesaler",
+        "domain": "wholesaler.supplychain.com"
       },
       "peer": {
         "instances": 1,
@@ -51,8 +51,8 @@
     },
     {
       "organization": {
-        "name": "consumer",
-        "domain": "consumer.supplychain.com"
+        "name": "retailer",
+        "domain": "retailer.supplychain.com"
       },
       "peer": {
         "instances": 1,
@@ -75,13 +75,13 @@
           ]
         },
         {
-          "name": "seller",
+          "name": "wholesaler",
           "peers": [
             "peer0"
           ]
         },
         {
-          "name": "consumer",
+          "name": "retailer",
           "peers": [
             "peer0"
           ]

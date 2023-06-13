@@ -74,50 +74,50 @@ Organizations:
           - Host: peer0.farmer.supplychain.com
             Port: 7041
 
-    - &seller
-      Name: sellerMSP
-      ID: sellerMSP
-      MSPDir: crypto-config/peerOrganizations/seller.supplychain.com/msp
+    - &wholesaler
+      Name: wholesalerMSP
+      ID: wholesalerMSP
+      MSPDir: crypto-config/peerOrganizations/wholesaler.supplychain.com/msp
 
       Policies:
           Readers:
               Type: Signature
-              Rule: "OR('sellerMSP.member')"
+              Rule: "OR('wholesalerMSP.member')"
           Writers:
               Type: Signature
-              Rule: "OR('sellerMSP.member')"
+              Rule: "OR('wholesalerMSP.member')"
           Admins:
               Type: Signature
-              Rule: "OR('sellerMSP.admin')"
+              Rule: "OR('wholesalerMSP.admin')"
           Endorsement:
               Type: Signature
-              Rule: "OR('sellerMSP.member')"
+              Rule: "OR('wholesalerMSP.member')"
 
       AnchorPeers:
-          - Host: peer0.seller.supplychain.com
+          - Host: peer0.wholesaler.supplychain.com
             Port: 7061
 
-    - &consumer
-      Name: consumerMSP
-      ID: consumerMSP
-      MSPDir: crypto-config/peerOrganizations/consumer.supplychain.com/msp
+    - &retailer
+      Name: retailerMSP
+      ID: retailerMSP
+      MSPDir: crypto-config/peerOrganizations/retailer.supplychain.com/msp
 
       Policies:
           Readers:
               Type: Signature
-              Rule: "OR('consumerMSP.member')"
+              Rule: "OR('retailerMSP.member')"
           Writers:
               Type: Signature
-              Rule: "OR('consumerMSP.member')"
+              Rule: "OR('retailerMSP.member')"
           Admins:
               Type: Signature
-              Rule: "OR('consumerMSP.admin')"
+              Rule: "OR('retailerMSP.admin')"
           Endorsement:
               Type: Signature
-              Rule: "OR('consumerMSP.member')"
+              Rule: "OR('retailerMSP.member')"
 
       AnchorPeers:
-          - Host: peer0.consumer.supplychain.com
+          - Host: peer0.retailer.supplychain.com
             Port: 7081
 
 ################################################################################
@@ -198,8 +198,8 @@ Profiles:
                 Organizations:
                     - *Orderer
                     - *farmer
-                    - *seller
-                    - *consumer
+                    - *wholesaler
+                    - *retailer
 
     # Profile used to create channeltx for my-channel1 #
     MyChannel1:
@@ -215,11 +215,11 @@ Profiles:
             SampleConsortium:
                 Organizations:
                     - *farmer
-                    - *seller
-                    - *consumer
+                    - *wholesaler
+                    - *retailer
         Application:
             <<: *ApplicationDefaults
             Organizations:
                 - *farmer
-                - *seller
-                - *consumer
+                - *wholesaler
+                - *retailer

@@ -1,20 +1,20 @@
 {
-    "name": "fablo-test-network-farmer",
+    "name": "fablo-test-network-retailer",
     "description": "Connection profile in Fablo network",
     "version": "1.0.0",
     "client": {
-        "organization": "farmer"
+        "organization": "retailer"
     },
     "organizations": {
-        "farmer": {
-            "mspid": "farmerMSP",
+        "retailer": {
+            "mspid": "retailerMSP",
             "peers": [
                 "peer0.farmer.supplychain.com",
                 "peer0.wholesaler.supplychain.com",
                 "peer0.retailer.supplychain.com"
             ],
             "certificateAuthorities": [
-                "ca.farmer.supplychain.com"
+                "ca.retailer.supplychain.com"
             ]
         }
     },
@@ -39,11 +39,11 @@
         }
       },
     "certificateAuthorities": {
-        "ca.farmer.supplychain.com": {
-            "url": "http://localhost:7040",
-            "caName": "ca.farmer.supplychain.com",
+        "ca.retailer.supplychain.com": {
+            "url": "http://localhost:7080",
+            "caName": "ca.retailer.supplychain.com",
             "tlsCACerts": {
-                "pem": "-----BEGIN CERTIFICATE-----\nMIICcDCCAhegAwIBAgIQVK9FjGUucEdr/3I05qWeIzAKBggqhkjOPQQDAjCBgjEL\nMAkGA1UEBhMCVVMxEzARBgNVBAgTCkNhbGlmb3JuaWExFjAUBgNVBAcTDVNhbiBG\ncmFuY2lzY28xHzAdBgNVBAoTFmZhcm1lci5zdXBwbHljaGFpbi5jb20xJTAjBgNV\nBAMTHHRsc2NhLmZhcm1lci5zdXBwbHljaGFpbi5jb20wHhcNMjMwNjEzMTExNTAw\nWhcNMzMwNjEwMTExNTAwWjCBgjELMAkGA1UEBhMCVVMxEzARBgNVBAgTCkNhbGlm\nb3JuaWExFjAUBgNVBAcTDVNhbiBGcmFuY2lzY28xHzAdBgNVBAoTFmZhcm1lci5z\ndXBwbHljaGFpbi5jb20xJTAjBgNVBAMTHHRsc2NhLmZhcm1lci5zdXBwbHljaGFp\nbi5jb20wWTATBgcqhkjOPQIBBggqhkjOPQMBBwNCAAR47rFlv7Xr3zcd7ImwLSYX\nj9c2Pnpbg/NrujMxtR2qFj4LxDDnTrxzbfgOVxzHVPqhToDP8JEFJhcBK5DSP5V2\no20wazAOBgNVHQ8BAf8EBAMCAaYwHQYDVR0lBBYwFAYIKwYBBQUHAwIGCCsGAQUF\nBwMBMA8GA1UdEwEB/wQFMAMBAf8wKQYDVR0OBCIEIAYeUNV8P0LcGCppQEg1LbXa\nOKVN1tAIzcsH3Sk2T+2EMAoGCCqGSM49BAMCA0cAMEQCIGGjXZdmqcsZOylPxySR\nnsGgisWvp+F7TKZC+rK4Rv/JAiA6sAmM5gQQvLHwlz9Amb+yXkSSoZaTzb3xdq0Y\noDvb5A==\n-----END CERTIFICATE-----\n"
+                "pem": "-----BEGIN CERTIFICATE-----\nMIICeDCCAh+gAwIBAgIQMHAZc4koCDfWAsE/WNFZszAKBggqhkjOPQQDAjCBhjEL\nMAkGA1UEBhMCVVMxEzARBgNVBAgTCkNhbGlmb3JuaWExFjAUBgNVBAcTDVNhbiBG\ncmFuY2lzY28xITAfBgNVBAoTGHJldGFpbGVyLnN1cHBseWNoYWluLmNvbTEnMCUG\nA1UEAxMedGxzY2EucmV0YWlsZXIuc3VwcGx5Y2hhaW4uY29tMB4XDTIzMDYxMzEx\nMTUwMFoXDTMzMDYxMDExMTUwMFowgYYxCzAJBgNVBAYTAlVTMRMwEQYDVQQIEwpD\nYWxpZm9ybmlhMRYwFAYDVQQHEw1TYW4gRnJhbmNpc2NvMSEwHwYDVQQKExhyZXRh\naWxlci5zdXBwbHljaGFpbi5jb20xJzAlBgNVBAMTHnRsc2NhLnJldGFpbGVyLnN1\ncHBseWNoYWluLmNvbTBZMBMGByqGSM49AgEGCCqGSM49AwEHA0IABE3hgORywJBV\nPW6ZvTP3+gb1MNHfppu/MBoc813VdRHGw4gTwbAC8PCQ5iP+B41oqUzv2DO8Q7nO\nWpZ1i4R5lEujbTBrMA4GA1UdDwEB/wQEAwIBpjAdBgNVHSUEFjAUBggrBgEFBQcD\nAgYIKwYBBQUHAwEwDwYDVR0TAQH/BAUwAwEB/zApBgNVHQ4EIgQgDW5FtrSnSj3m\nWseRlQC5w3gz1gemAFwYrU/p6hKWaj4wCgYIKoZIzj0EAwIDRwAwRAIga0TfANuT\nRNy4ZGlTHUUHT/qI2UmwzmkJJcNTwQae6EcCIDizRZYqztnVUk/x4ELFMFQ3jANi\ngGRplbeJAl8WasuC\n-----END CERTIFICATE-----\n"
             },
             "httpOptions": {
                 "verify": false

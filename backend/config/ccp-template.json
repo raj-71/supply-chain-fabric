@@ -10,8 +10,8 @@
             "mspid": "${ORG}MSP",
             "peers": [
                 "peer0.farmer.supplychain.com",
-                "peer0.seller.supplychain.com",
-                "peer0.consumer.supplychain.com"
+                "peer0.wholesaler.supplychain.com",
+                "peer0.retailer.supplychain.com"
             ],
             "certificateAuthorities": [
                 "ca.${ORG}.supplychain.com"
@@ -25,13 +25,13 @@
             "pem": "${PEERPEM1}"
           }
         },
-        "peer0.seller.supplychain.com": {
+        "peer0.wholesaler.supplychain.com": {
           "url": "grpc://localhost:7061",
           "tlsCACerts": {
             "pem": "${PEERPEM2}"
           }
         },
-        "peer0.consumer.supplychain.com": {
+        "peer0.retailer.supplychain.com": {
           "url": "grpc://localhost:7081",
           "tlsCACerts": {
             "pem": "${PEERPEM3}"

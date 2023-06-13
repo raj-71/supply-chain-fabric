@@ -10,6 +10,15 @@ function createToken(data, privateKey){
     });
 }
 
-const FarmerService = { createToken };
+function sellToWholesaler(tokenId, wholesalerId, privateKey){
+    return httpService.post(apiEndpoint, {
+        peers: ["peer0.farmer.supplychain.com"],
+        fcn: "transferFrom",
+        args: [wholesalerId, tokenId],
+        privateKey
+    });
+}
+
+const FarmerService = { createToken, sellToWholesaler };
 
 export default FarmerService;

@@ -242,9 +242,9 @@ ldap:
 affiliations:
   farmer:
     - department1
-  seller:
+  wholesaler:
     - department1
-  consumer:
+  retailer:
     - department1
 
 #############################################################################

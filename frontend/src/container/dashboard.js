@@ -20,7 +20,7 @@ function Dashboard() {
     {
       name: "Sell to Wholesaler",
       imgSrc: Canteen,
-      link: "/sell-to--wholesaler",
+      link: "/sell-to-wholesaler",
       blocked: false,
     },
     {

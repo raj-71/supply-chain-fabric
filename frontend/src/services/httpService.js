@@ -9,11 +9,15 @@ const instance = axios.create({
   headers: {
     "Content-Type": "application/json",
     // 'token': localStorage.getItem("token"),
-    Authorization: "Bearer " + localStorage.getItem("token"),
+    Authorization: "Bearer " + getJWT(),
   },
 });
 
 function setJWT(jwt) {}
+
+function getJWT() {
+  return localStorage.getItem("token");
+}
 
 const httpService = {
   setJWT,
