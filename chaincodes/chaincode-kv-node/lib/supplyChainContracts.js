@@ -30,7 +30,7 @@ class SupplyChainContracts extends Contract {
     }
 
     // create token over token
-    async createTokenOverToken(ctx, tokenId, parentTokenId, owner, metadataURI){
+    async createTokensOverToken(ctx, tokenIds, parentTokenId, numberOfTokens, metadataURI){
         // get parent token data
         const tokenAsBytes = await ctx.stub.getState(parentTokenId);
         if (!tokenAsBytes || tokenAsBytes.length === 0) {
@@ -38,20 +38,29 @@ class SupplyChainContracts extends Contract {
         }
 
         const parentToken = JSON.parse(tokenAsBytes.toString());
+        parentToken.childTokenId = [];
+        tokenIds = JSON.parse(tokenIds);
 
-        const TokenOverToken = {
-            tokenId: tokenId,
-            owner: owner,
-            parentTokenId: parentTokenId,
-            metadataURI: metadataURI
+        const minter = ctx.clientIdentity.getID();
+
+
+        for (let i = 0; i < numberOfTokens; i++) {
+            let TokenOverToken = {
+                tokenId: tokenIds[i],
+                owner: minter,
+                parentTokenId: parentTokenId,
+                metadataURI: metadataURI
+            }
+            
+            parentToken.childTokenId.push(tokenIds[i]);
+            await ctx.stub.putState(tokenIds[i], Buffer.from(JSON.stringify(TokenOverToken)));
         }
-
+        
+        
         // add child token id to parent token
-        parentToken.childTokenId.push(tokenId);
-
         await ctx.stub.putState(parentTokenId, Buffer.from(JSON.stringify(parentToken)));
-        await ctx.stub.putState(tokenId, Buffer.from(JSON.stringify(TokenOverToken)));
 
+        return tokenIds;
     }
 
 
@@ -117,6 +126,34 @@ class SupplyChainContracts extends Contract {
         // convert the buffer into JSON object
         const nft = JSON.parse(nftBytes.toString());
         return nft;
+    }
+
+    // read all the NFT of the user
+    async readAllNFT(ctx){
+        // get current user
+        const owner = ctx.clientIdentity.getID();
+
+        // get all the NFT from the ledger
+        const iterator = await ctx.stub.getStateByRange('', '');
+        const allResults = [];
+
+        while (true) {
+            const res = await iterator.next();
+
+            if (res.value && res.value.value.toString()) {
+                const nft = JSON.parse(res.value.value.toString('utf8'));
+
+                // check if the user is owner of the NFT
+                if(nft.owner === owner) {
+                    allResults.push({ Key: res.value.key, Record: nft });
+                }
+            }
+
+            if (res.done) {
+                await iterator.close();
+                return allResults;
+            }
+        }
     }
 
     // get history of the NFT

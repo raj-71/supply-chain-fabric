@@ -45,9 +45,7 @@ const invokeTransaction = async (channelName, chaincodeName, fcn, args, username
         
         let identity = await wallet.get(username);
 
-        console.log("identity", identity);
         identity.credentials.privateKey = privateKey;
-        console.log("identity", identity);
 
         if (!identity) {
             console.log(`An identity for the user ${username} does not exist in the wallet, so registering user`);
@@ -98,6 +96,22 @@ const invokeTransaction = async (channelName, chaincodeName, fcn, args, username
                 break;
             case "_generateTokenId":
                 result = await contract.submitTransaction(fcn);
+                result = {txid: result.toString()}
+                break;
+            case "readAllNFT":
+                result = await contract.evaluateTransaction(fcn);
+                result = JSON.parse(result.toString());
+                break;
+            case "createTokensOverToken":
+                let tokenIds = [];
+                console.log("args[1]: ", args[1]);
+                for (let i = 0; i < args[1]; i++) {
+                    let token = await generateTokenId(channelName, chaincodeName, fcn, args, username, org_name);
+                    console.log(`token${i}: `, token);
+                    tokenIds.push(token);
+                }
+                console.log("before createTokensOverToken: ", tokenIds);
+                result = await contract.submitTransaction(fcn, JSON.stringify(tokenIds), args[0], args[1], JSON.stringify(args[2]));
                 result = {txid: result.toString()}
                 break;
             default:

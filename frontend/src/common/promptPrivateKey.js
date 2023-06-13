@@ -10,6 +10,19 @@ const PromptPrivateKey = ({ handlePromptPrivateKey }) => {
         handlePromptPrivateKey(privateKey);
     };
 
+    const handleFileUpload = (e) => {
+        const file = e.target.files[0];
+        const reader = new FileReader();
+
+        reader.onload = (e) => {
+            const text = e.target.result;
+            console.log("text", text);
+            setPrivateKey(text);
+        }
+
+        reader.readAsText(file);
+    }
+
     return (
         <>
             <div className="text-white -center items-center flex overflow-x-hidden overflow-y-auto fixed inset-0 z-50 outline-none focus:outline-none">
@@ -22,14 +35,15 @@ const PromptPrivateKey = ({ handlePromptPrivateKey }) => {
                                         <div className="text-center mb-3 mt-5 font-bold">
                                             <small>Enter Private Key</small>
                                         </div>
-                                        <Input
+                                        <input type="file" onChange={handleFileUpload} />
+                                        {/* <Input
                                             label="Private Key"
                                             type="text"
                                             id="privateKey"
                                             required
                                             value={privateKey}
                                             onChange={setPrivateKey}
-                                        />
+                                        /> */}
                                         <button
                                             type="submit"
                                             className="w-full mt-5 text-white bg-indigo-600 hover:bg-indigo-800 focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800"

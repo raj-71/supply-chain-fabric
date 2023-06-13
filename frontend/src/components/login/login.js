@@ -9,7 +9,6 @@ function Login() {
   const [error, setError] = useState(false);
   const [username, setUsername] = useState("");
   const [secret, setSecret] = useState("");
-  const [privateKey, setPrivateKey] = useState("");
   const [org, setOrg] = useState("farmer");
 
   const navigate = useNavigate();
@@ -21,7 +20,7 @@ function Login() {
     setError("");
 
     try {
-      const res = await authService.login({username, orgName: org, secret, privateKey});
+      const res = await authService.login({username, orgName: org, secret});
       // console.log(res);
       if (res) {
         setLoader(false);
@@ -63,15 +62,6 @@ function Login() {
                 required
                 value={secret}
                 onChange={setSecret}
-              />
-              
-              <Input
-                label="Private Key"
-                type="text"
-                id="privateKey"
-                required
-                value={privateKey}
-                onChange={setPrivateKey}
               />
 
               <div className="relative">

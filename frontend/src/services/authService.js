@@ -1,7 +1,6 @@
 import http from './httpService';
 import jwtDecode from 'jwt-decode';
 const apiLogin = "/users/login";
-const apiLogout = "/logout";
 const tokenKey = "token";
 const roleKey = "orgName";
 
@@ -30,7 +29,7 @@ export function getCurrentUser() {
     try {
         const jwt = localStorage.getItem(tokenKey);
 
-        return jwtDecode(jwt).id;
+        return jwtDecode(jwt);
     } catch (ex) {
         return null;
     }

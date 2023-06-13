@@ -14,11 +14,20 @@ function sellToWholesaler(tokenId, wholesalerId, privateKey){
     return httpService.post(apiEndpoint, {
         peers: ["peer0.farmer.supplychain.com"],
         fcn: "transferFrom",
-        args: [wholesalerId, tokenId],
+        args: [`x509::/OU=client/OU=wholesaler/OU=department1/CN=${wholesalerId}::/C=US/ST=California/L=San Francisco/O=wholesaler.supplychain.com/CN=ca.wholesaler.supplychain.com`, tokenId],
         privateKey
     });
 }
 
-const FarmerService = { createToken, sellToWholesaler };
+function getTokens(privateKey){
+    return httpService.post(apiEndpoint, {
+        peers: ["peer0.farmer.supplychain.com"],
+        fcn: "readAllNFT",
+        args: [],
+        privateKey
+    });
+}
+
+const FarmerService = { createToken, sellToWholesaler, getTokens };
 
 export default FarmerService;

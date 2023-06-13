@@ -128,12 +128,10 @@ app.post('/users/login', async function (req, res) {
     var username = req.body.username;
     var orgName = req.body.orgName;
     var secret = req.body.secret;
-    var privateKey = req.body.privateKey;
     logger.debug('End point : /users');
     logger.debug('User name : ' + username);
     logger.debug('Org name  : ' + orgName);
     logger.debug('secret  : ' + secret);
-    logger.debug('privateKey  : ' + privateKey);
     if (!username) {
         res.json(getErrorMessage('\'username\''));
         return;
@@ -144,7 +142,7 @@ app.post('/users/login', async function (req, res) {
     }
 
 
-    let isUserRegistered = await helper.isUserRegistered(username, orgName, secret, privateKey);
+    let isUserRegistered = await helper.isUserRegistered(username, orgName, secret);
 
     if (isUserRegistered) {
         var token = jwt.sign({
@@ -226,6 +224,7 @@ app.get('/channels/:channelName/chaincodes/:chaincodeName', async function (req,
         logger.debug('chaincodeName : ' + chaincodeName);
         logger.debug('fcn : ' + fcn);
         logger.debug('args : ' + args);
+        logger.debug('privateKey: ' + req.params.privateKey);
 
         if (!chaincodeName) {
             res.json(getErrorMessage('\'chaincodeName\''));
@@ -248,7 +247,7 @@ app.get('/channels/:channelName/chaincodes/:chaincodeName', async function (req,
         args = JSON.parse(args);
         logger.debug(args);
 
-        let message = await query.query(channelName, chaincodeName, args, fcn, req.username, req.orgname);
+        let message = await query.query(channelName, chaincodeName, args, fcn, req.username, req.orgname, req.params.privateKey);
 
         const response_payload = {
             result: message,

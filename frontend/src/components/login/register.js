@@ -10,7 +10,6 @@ function Register() {
   const [username, setUsername] = useState("");
   const [org, setOrg] = useState("farmer");
   const [secret, setSecret] = useState("");
-  const [privateKey, setPrivateKey] = useState("");
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -31,9 +30,10 @@ function Register() {
         setSuccess(
           "User registered successfully."
         );
+        console.log("before export")
         setUsername("")
         setSecret(res.data.secret);
-        setPrivateKey(res.data.privateKey);
+        exportKey(res.data.privateKey);
         return;
       }
     } catch (error) {
@@ -47,6 +47,17 @@ function Register() {
       return;
     }
   };
+
+  const exportKey = (key) => {
+    console.log("exporting key...", key);
+    const element = document.createElement("a");
+    const file = new Blob([key], { type: "text/plain" });
+    element.href = URL.createObjectURL(file);
+    element.download = `${username}.txt`;
+    document.body.appendChild(element);
+    element.click();
+    return document.body.removeChild(element);
+  }
 
   return (
     <>
@@ -106,7 +117,6 @@ function Register() {
                 onChange={setUsername}
               />
 
-
               {error ? (
                 <div className="text-red-500 text-sm text-center  ">
                   {error}
@@ -120,11 +130,6 @@ function Register() {
                   <div>
                     <div className="text-gray-50 text-md mt-3">
                       Secret: {secret}
-                    </div>
-                    <div className="text-gray-50 text-md mt-3 overflow-auto">
-                      Private Key:
-                      <br /> 
-                      <div dangerouslySetInnerHTML={{__html: privateKey}} />
                     </div>
                   </div>
                 </div>

@@ -64,14 +64,12 @@ const getAffiliation = async (org) => {
         return null
 }
 
-const isUserRegistered = async (username, userOrg, secret, privateKey) => {
+const isUserRegistered = async (username, userOrg, secret) => {
     const walletPath = await getWalletPath(userOrg)
     const wallet = await Wallets.newFileSystemWallet(walletPath);
     console.log(`Wallet path: ${walletPath}`);
 
     const userIdentity = await wallet.get(username);
-
-    userIdentity.credentials.privateKey = privateKey;
 
     if (userIdentity) {
 
