@@ -1,9 +1,4 @@
 import { Link } from "react-router-dom";
-import AboutUs from "../components/home/aboutUs";
-import ContactUs from "../components/home/contactUs";
-import LandingPage from "../components/home/landingPage";
-import Services from "../components/home/services";
-import Footer from "./footer";
 import farmer from "../assets/images/home/farmer.png";
 import wholesaler from "../assets/images/home/wholesaler.png";
 import retailer from "../assets/images/home/retailer.png";

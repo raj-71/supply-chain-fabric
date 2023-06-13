@@ -323,7 +323,7 @@ const registerAndGerSecret = async (username, userOrg) => {
         const x509Identity = {
             credentials: {
                 certificate: enrollment.certificate,
-                // privateKey: privateKey,
+                privateKey: privateKey,
             },
             mspId: orgMSPId,
             type: 'X.509',

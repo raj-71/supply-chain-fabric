@@ -34,7 +34,7 @@ const generateTokenId = async (channelName, chaincodeName, fcn, args, username, 
     }
 }
 
-const invokeTransaction = async (channelName, chaincodeName, fcn, args, username, org_name, transientData) => {
+const invokeTransaction = async (channelName, chaincodeName, fcn, args, username, org_name, transientData, privateKey) => {
     try {
         const ccp = await helper.getCCP(org_name);
         console.log("==================", channelName, chaincodeName, fcn, args, username, org_name,)
@@ -44,6 +44,11 @@ const invokeTransaction = async (channelName, chaincodeName, fcn, args, username
         console.log(`Wallet path: ${walletPath}`);
         
         let identity = await wallet.get(username);
+
+        console.log("identity", identity);
+        identity.credentials.privateKey = privateKey;
+        console.log("identity", identity);
+
         if (!identity) {
             console.log(`An identity for the user ${username} does not exist in the wallet, so registering user`);
             await helper.getRegisteredUser(username, org_name, true)
@@ -79,7 +84,7 @@ const invokeTransaction = async (channelName, chaincodeName, fcn, args, username
                 console.log("before")
                 let tokenId = await generateTokenId(channelName, chaincodeName, fcn, args, username, org_name);
                 console.log("after tokenId: ", tokenId);
-                result = await contract.submitTransaction(fcn, tokenId, args[0]);
+                result = await contract.submitTransaction(fcn, tokenId, JSON.stringify(args[0]));
                 console.log("result: =========", result);
                 result = {txid: result.toString()}
                 break;

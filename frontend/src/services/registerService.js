@@ -1,11 +1,5 @@
 import httpService from "./httpService";
 
-const tokenKey = "token";
-const roleKey = "role";
-const userid = "userId";
-const username = "userName";
-const org = "orgName";
-
 const apiEndpoint = "/register";
 
 export async function register(user) {

@@ -122,7 +122,9 @@ function Register() {
                       Secret: {secret}
                     </div>
                     <div className="text-gray-50 text-md mt-3 overflow-auto">
-                      Private Key: <br />{privateKey}
+                      Private Key:
+                      <br /> 
+                      <div dangerouslySetInnerHTML={{__html: privateKey}} />
                     </div>
                   </div>
                 </div>

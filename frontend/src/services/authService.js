@@ -1,11 +1,9 @@
 import http from './httpService';
 import jwtDecode from 'jwt-decode';
-import httpService from './httpService';
 const apiLogin = "/users/login";
 const apiLogout = "/logout";
 const tokenKey = "token";
 const roleKey = "orgName";
-const userid = "userid";
 
 export async function login(data) {
     const res = await http.post(apiLogin, data);

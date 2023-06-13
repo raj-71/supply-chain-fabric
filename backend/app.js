@@ -37,7 +37,7 @@ app.set('secret', 'thisismysecret');
 app.use(expressJWT({
     secret: 'thisismysecret'
 }).unless({
-    path: ['/users','/users/login', '/register']
+    path: ['/users', '/users/login', '/register']
 }));
 app.use(bearerToken());
 
@@ -50,8 +50,7 @@ app.use((req, res, next) => {
         return next();
     }
     var token = req.token;
-    console.log(`Token ================:${token}`)
-    console.log(req);
+    console.log(`Token ================:${token}`);
     jwt.verify(token, app.get('secret'), (err, decoded) => {
         if (err) {
             console.log(`Error ================:${err}`)
@@ -180,9 +179,9 @@ app.post('/users/login', async function (req, res) {
         return;
     }
 
-    
+
     let isUserRegistered = await helper.isUserRegistered(username, orgName, secret, privateKey);
-    
+
     if (isUserRegistered) {
         var token = jwt.sign({
             exp: Math.floor(Date.now() / 1000) + parseInt(constants.jwt_expiretime),
@@ -211,7 +210,7 @@ app.post('/channels/:channelName/chaincodes/:chaincodeName', async function (req
         logger.debug('channelName  : ' + channelName);
         logger.debug('chaincodeName : ' + chaincodeName);
         logger.debug('fcn  : ' + fcn);
-        logger.debug('args  : ' + args);
+        logger.debug('args  : ', req.body.args);
         if (!chaincodeName) {
             res.json(getErrorMessage('\'chaincodeName\''));
             return;
@@ -229,13 +228,12 @@ app.post('/channels/:channelName/chaincodes/:chaincodeName', async function (req
             return;
         }
 
-        let message = await invoke.invokeTransaction(channelName, chaincodeName, fcn, args, req.username, req.orgname, transient);
-        console.log(`message result is : ${message}`)
+        let message = await invoke.invokeTransaction(channelName, chaincodeName, fcn, args, req.username, req.orgname, transient, req.body.privateKey);
+        console.log('message result is : ', message);
 
         const response_payload = {
-            result: message,
-            error: null,
-            errorData: null
+            success: true,
+            message
         }
         res.send(response_payload);
 
