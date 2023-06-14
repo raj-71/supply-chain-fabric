@@ -1,4 +1,5 @@
 const { Gateway, Wallets, } = require('fabric-network');
+const FabricCAServices = require('fabric-ca-client');
 const fs = require('fs');
 const path = require("path")
 const log4js = require('log4js');
@@ -6,7 +7,32 @@ const logger = log4js.getLogger('BasicNetwork');
 const util = require('util')
 
 
-const helper = require('./helper')
+const helper = require('./helper');
+
+const queryByConsumer = async (fcn, tokenId) => {
+    const ccp = await helper.getCCP("farmer");
+
+    const walletPath = await helper.getWalletPath("farmer");
+    const wallet = await Wallets.newFileSystemWallet(walletPath);
+
+    let identity = await wallet.get("admin");
+
+    const gateway = new Gateway();
+    await gateway.connect(ccp, {
+        wallet, identity: "admin", discovery: { enabled: true, asLocalhost: true }
+    });
+
+    const network = await gateway.getNetwork("my-channel1");
+    const contract = network.getContract("chaincode1");
+    
+    let result = await contract.submitTransaction(fcn, tokenId);
+    console.log("result: =========", result);
+    console.log("result: =========", result.toString());
+    result = {txid: result.toString()}
+    return result;
+}
+
+
 const query = async (channelName, chaincodeName, args, fcn, username, org_name, privateKey) => {
 
     try {
@@ -81,4 +107,7 @@ const query = async (channelName, chaincodeName, args, fcn, username, org_name, 
     }
 }
 
-exports.query = query
+module.exports = {
+    query,
+    queryByConsumer
+}

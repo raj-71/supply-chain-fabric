@@ -2,9 +2,9 @@ import React, { useState } from "react";
 import Input from "../../common/input";
 import Loader from "../../common/loader";
 import PromptPrivateKey from "../../common/promptPrivateKey";
-import WholesalerService from "../../services/wholesalerService";
+import RetailerService from "../../services/retailerService";
 
-function SellToRetailer() {
+function SellToConsumer() {
     const [loader, setLoader] = useState(false);
     const [error, setError] = useState(false);
     const [success, setSuccess] = useState(false);
@@ -13,7 +13,6 @@ function SellToRetailer() {
     const [privateKey, setPrivateKey] = useState("");
 
     const [tokenId, setTokenId] = useState("");
-    const [retailerId, setRetailerId] = useState("");
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -27,10 +26,9 @@ function SellToRetailer() {
 
     const sendRequest = async () => {
         try {
-            console.log("tokenId: ", tokenId, "retailerId: ", retailerId);
             console.log("privateKey: ", privateKey);
 
-            const res = await WholesalerService.sellToRetailer(tokenId, retailerId, privateKey);
+            const res = await RetailerService.sellToConsumer(tokenId, privateKey);
             
             console.log("response: ", res.data);
 
@@ -58,7 +56,7 @@ function SellToRetailer() {
                 <div className="flex flex-col items-center justify-center px-6 mx-auto lg:py-0">
                     <div className="w-full p-6 bg-white rounded-lg shadow dark:border md:mt-0 sm:max-w-md dark:bg-gray-800 dark:border-gray-700 sm:p-8">
                         <h2 className="mb-1 text-xl text-center font-bold leading-tight tracking-tight text-gray-900 md:text-2xl dark:text-white">
-                            Sell to Retailer
+                            Sell to Consumer
                         </h2>
                         <form
                             className="mt-4 space-y-4 lg:mt-5 md:space-y-5"
@@ -71,15 +69,6 @@ function SellToRetailer() {
                                 required
                                 value={tokenId}
                                 onChange={setTokenId}
-                            />
-
-                            <Input
-                                label="Reatiler Username"
-                                type="text"
-                                id="retailerId"
-                                required
-                                value={retailerId}
-                                onChange={setRetailerId}
                             />
 
                             {error ? (
@@ -112,4 +101,4 @@ function SellToRetailer() {
         </>
     );
 }
-export default SellToRetailer;
+export default SellToConsumer;

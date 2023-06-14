@@ -45,7 +45,7 @@ const getWalletPath = async (org) => {
         walletPath = path.join(process.cwd(), 'retailer-wallet');
     else
         return null;
-
+    console.log(walletPath);
     return walletPath;
 }
 
@@ -254,6 +254,8 @@ const registerAndGerSecret = async (username, userOrg) => {
 
 module.exports = {
     getCCP: getCCP,
+    getCaInfo: getCaInfo,
+    getCaUrl: getCaUrl,
     getWalletPath: getWalletPath,
     isUserRegistered: isUserRegistered,
     registerAndGerSecret: registerAndGerSecret

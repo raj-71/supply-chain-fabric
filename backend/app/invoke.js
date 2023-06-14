@@ -102,6 +102,10 @@ const invokeTransaction = async (channelName, chaincodeName, fcn, args, username
                 result = await contract.evaluateTransaction(fcn);
                 result = JSON.parse(result.toString());
                 break;
+            case "lockToken":
+                result = await contract.submitTransaction(fcn, args[0]);
+                result = JSON.parse(result.toString());
+                break;
             case "createTokensOverToken":
                 let tokenIds = [];
                 console.log("args[1]: ", args[1]);

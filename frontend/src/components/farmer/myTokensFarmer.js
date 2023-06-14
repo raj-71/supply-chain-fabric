@@ -4,7 +4,7 @@ import Loader from "../../common/loader";
 import PromptPrivateKey from "../../common/promptPrivateKey";
 import FarmerService from "../../services/farmerService";
 
-function MyTokens() {
+function MyTokensFarmer() {
     const [loader, setLoader] = useState(true);
     const [error, setError] = useState(false);
 
@@ -124,4 +124,4 @@ function MyTokens() {
         </>
     );
 }
-export default MyTokens;
+export default MyTokensFarmer;

@@ -37,7 +37,7 @@ app.set('secret', 'thisismysecret');
 app.use(expressJWT({
     secret: 'thisismysecret'
 }).unless({
-    path: ['/users', '/users/login', '/register']
+    path: ['/users', '/users/login', '/register', '/consumer']
 }));
 app.use(bearerToken());
 
@@ -46,7 +46,7 @@ logger.level = 'debug';
 
 app.use((req, res, next) => {
     logger.debug('New req for %s', req.originalUrl);
-    if (req.originalUrl.indexOf('/users') >= 0 || req.originalUrl.indexOf('/users/login') >= 0 || req.originalUrl.indexOf('/register') >= 0) {
+    if (req.originalUrl.indexOf('/users') >= 0 || req.originalUrl.indexOf('/users/login') >= 0 || req.originalUrl.indexOf('/register') >= 0 || req.originalUrl.indexOf('/consumer') >= 0) {
         return next();
     }
     var token = req.token;
@@ -157,6 +157,44 @@ app.post('/users/login', async function (req, res) {
     }
 });
 
+app.get('/consumer', async function (req, res) {
+    try{
+        var tokenId = req.query.tokenId;
+        logger.debug('End point : /consumer');
+        logger.debug('tokenId : ' + tokenId);
+    
+        if (!tokenId) {
+            res.json(getErrorMessage('\'tokenId\''));
+            return;
+        }
+    
+        let result = await query.queryByConsumer("readByConsumer", tokenId);
+        let parentResult = null;
+
+        if("parentTokenId" in JSON.parse(result.txid)){
+            let parentTokenId = JSON.parse(result.txid).parentTokenId;
+            parentResult = await query.queryByConsumer("getHistory", parentTokenId);
+            // console.log("parentResult: ", parentResult);
+        }
+
+        console.log("result: ", JSON.parse(result.txid).parentTokenId);
+        console.log("parentResult: ", parentResult);
+
+        res.send({
+            success: true,
+            result: result,
+            parentResult
+        })
+
+    } catch (error) {
+        console.log(error.message);
+        res.send({
+            success: false,
+            error: error.name,
+            errorData: error.message
+        })
+    }
+});
 
 // Invoke transaction on chaincode on target peers
 app.post('/channels/:channelName/chaincodes/:chaincodeName', async function (req, res) {

@@ -92,7 +92,7 @@
   "chaincodes": [
     {
       "name": "chaincode1",
-      "version": "0.0.6",
+      "version": "0.0.8",
       "lang": "node",
       "channel": "my-channel1",
       "directory": "./chaincodes/chaincode-kv-node"

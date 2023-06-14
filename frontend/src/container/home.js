@@ -13,7 +13,7 @@ function Home() {
                             <h1 className="text-4xl font-extrabold text-gray-900 leading-tight">Supply Chain Management</h1>
                             <p className="mt-4 max-w-2xl text-center text-xl text-gray-500">Our platform built on Hyperledger Fabric provides a secure and transparent way for supply chain members to track and manage an item.</p>
                             <div className="mt-10">
-                                <Link to="/register" className="inline-block px-6 py-4 text-lg font-medium text-white bg-indigo-500 rounded-lg hover:bg-indigo-600">Get Started</Link>
+                                <Link to="/consumer" className="inline-block px-6 py-4 text-lg font-medium text-white bg-indigo-500 rounded-lg hover:bg-indigo-600">Track a Token</Link>
                             </div>
                         </section>
 

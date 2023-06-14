@@ -26,7 +26,7 @@ function Dashboard() {
     {
       name: "My Tokens",
       imgSrc: Canteen,
-      link: "/my-tokens",
+      link: "/my-tokens-farmer",
       blocked: false,
     }
   ];
@@ -47,7 +47,7 @@ function Dashboard() {
     {
       name: "My Tokens",
       imgSrc: Canteen,
-      link: "/my-tokens",
+      link: "/my-tokens-wholesaler",
       blocked: false,
     }
   ];
@@ -62,7 +62,7 @@ function Dashboard() {
     {
       name: "My Tokens",
       imgSrc: Canteen,
-      link: "/my-tokens",
+      link: "/my-tokens-retailer",
       blocked: false,
     }
   ];

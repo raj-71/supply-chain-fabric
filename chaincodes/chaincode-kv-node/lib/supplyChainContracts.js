@@ -43,7 +43,6 @@ class SupplyChainContracts extends Contract {
 
         const minter = ctx.clientIdentity.getID();
 
-
         for (let i = 0; i < numberOfTokens; i++) {
             let TokenOverToken = {
                 tokenId: tokenIds[i],
@@ -78,6 +77,11 @@ class SupplyChainContracts extends Contract {
             throw new Error(owner + ' is not owner of tokenId ' + tokenId);
         }
 
+        // Check if the token is locked
+        if ("lock" in nft) {
+            return "token is locked";
+        }
+
         // Update the owner of the token
         nft.owner = to;
         await ctx.stub.putState(tokenId, Buffer.from(JSON.stringify(nft)));
@@ -103,6 +107,10 @@ class SupplyChainContracts extends Contract {
             throw new Error('User is not authorized to add metadata');
         }
 
+        if ("lock" in nft) {
+            return "token is locked";
+        }
+
         // add metadata to the token
         let orgName = ctx.clientIdentity.getMSPID();
         orgName = orgName.slice(0, -3).toLowerCase();
@@ -110,6 +118,31 @@ class SupplyChainContracts extends Contract {
 
         await ctx.stub.putState(tokenId, Buffer.from(JSON.stringify(nft)));
                 
+        return nft;
+    }
+
+    // to lock the token
+    async lockToken(ctx, tokenId) {
+
+        // get current user
+        const owner = ctx.clientIdentity.getID();
+
+        // check if the tokenId exists
+        const exists = await this.nftExists(ctx, tokenId);
+        if(!exists) {
+            throw new Error('Token ' + tokenId + ' does not exist');
+        }
+
+        // check if the user is authorized to lock the token
+        let nft = await this.readNFT(ctx, tokenId);
+        if(nft.owner !== owner) {
+            throw new Error('User is not authorized to lock the token');
+        }
+
+        nft.lock = true;
+
+        await ctx.stub.putState(tokenId, Buffer.from(JSON.stringify(nft)));
+
         return nft;
     }
 
@@ -143,6 +176,10 @@ class SupplyChainContracts extends Contract {
             if (res.value && res.value.value.toString()) {
                 const nft = JSON.parse(res.value.value.toString('utf8'));
 
+                if("lock" in nft) {
+                    continue;
+                }
+
                 // check if the user is owner of the NFT
                 if(nft.owner === owner) {
                     allResults.push({ Key: res.value.key, Record: nft });
@@ -154,6 +191,24 @@ class SupplyChainContracts extends Contract {
                 return allResults;
             }
         }
+    }
+
+    async readByConsumer(ctx, tokenId){
+        
+        const nftBytes = await ctx.stub.getState(tokenId);
+
+        if (!nftBytes || nftBytes.length === 0) {
+            throw new Error('tokenId ' + tokenId + ' is not available');
+        }
+
+        const nft = JSON.parse(nftBytes.toString());
+
+        if("lock" in nft) {
+            return nft;
+        } else{
+            throw new Error('tokenId ' + tokenId + ' is not available');
+        }
+
     }
 
     // get history of the NFT

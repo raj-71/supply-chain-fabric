@@ -9,9 +9,13 @@ import Dashboard from "./container/dashboard";
 import Logout from "./container/logout";
 import CreateToken from "./components/farmer/createToken";
 import SellToWholesaler from "./components/farmer/sellToWholesaler";
-import MyTokens from "./components/farmer/myTokens";
 import SellToRetailer from "./components/wholesaler/sellToRetailer";
 import TokensOverToken from "./components/wholesaler/tokensOverToken";
+import MyTokensWholesaler from "./components/wholesaler/myTokensWholesaler";
+import MyTokensFarmer from "./components/farmer/myTokensFarmer";
+import SellToConsumer from "./components/retailer/sellToConsumer";
+import MyTokensRetailer from "./components/retailer/myTokensRetailer";
+import ConsumerData from "./components/consumer/consumerData";
 function App() {
 
   // console.log = function(){};
@@ -28,17 +32,19 @@ function App() {
         {/*farmer */}
         <Route path="/create-token" element={<CreateToken />} />
         <Route path="/sell-to-wholesaler" element={<SellToWholesaler />} />
-        <Route path="/my-tokens" element={<MyTokens />} />
+        <Route path="/my-tokens-farmer" element={<MyTokensFarmer />} />
 
         {/*wholesaler */}
         <Route path="/create-tokens-over-token" element={<TokensOverToken />} />
         <Route path="/sell-to-retailer" element={<SellToRetailer />} />
+        <Route path="/my-tokens-wholesaler" element={<MyTokensWholesaler />} />
 
         {/*retailer */}
-        <Route path="/sell-to-consumer" element={<Dashboard />} />
+        <Route path="/sell-to-consumer" element={<SellToConsumer />} />
+        <Route path="/my-tokens-retailer" element={<MyTokensRetailer />} />
 
         {/*consumer */}
-        <Route path="/token-data" element={<Dashboard />} />
+        <Route path="/consumer" element={<ConsumerData />} />
 
         <Route path="/logout" element={<Logout />} />
 
