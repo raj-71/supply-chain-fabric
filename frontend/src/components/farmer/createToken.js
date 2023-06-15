@@ -1,6 +1,6 @@
 import React, { useState } from "react";
+import FormButton from "../../common/formButton";
 import Input from "../../common/input";
-import Loader from "../../common/loader";
 import PromptPrivateKey from "../../common/promptPrivateKey";
 import FarmerService from "../../services/farmerService";
 
@@ -10,7 +10,6 @@ function CreateToken() {
     const [success, setSuccess] = useState(false);
 
     const [promptPrivateKeyModal, setPromptPrivateKeyModal] = useState(false);
-    const [privateKey, setPrivateKey] = useState("");
 
     const [productName, setProductName] = useState("");
     const [placeOfOrigin, setPlaceOfOrigin] = useState("");
@@ -28,7 +27,7 @@ function CreateToken() {
         setPromptPrivateKeyModal(true);
     };
 
-    const sendRequest = async () => {
+    const sendRequest = async (key) => {
         try {
             let tokenData = {
                 productName,
@@ -38,29 +37,31 @@ function CreateToken() {
             }
 
             console.log("tokenData: ", tokenData);
-            console.log("privateKey: ", privateKey);
 
-            const res = await FarmerService.createToken(tokenData, privateKey);
+            const res = await FarmerService.createToken(tokenData, key);
             
-            console.log("response: ", res);
+            console.log("response: ", res.data);
+            setLoader(false);
 
             if (res.data.success) {
-                setSuccess("Token Created Successfully!");
                 setError("");
-                setLoader(false);
-                setTokenId(res.data.message.result.txid);
-                console.log("response data");
-                console.log(res.data);
+                setSuccess("Token Created Successfully!");
+                setTokenId(res.data.message.result);
+            } else {
+                setSuccess("");
+                setError(res.data.error.message);
             }
         } catch (error) {
+            setLoader(false);
+            setSuccess("");
+            setError("Something went wrong!");
             console.log(error);
         }
     }
 
     const handlePromptPrivateKey = (promptPrivateKey) => {
-        setPrivateKey(promptPrivateKey);
         setPromptPrivateKeyModal(false);
-        sendRequest();
+        sendRequest(promptPrivateKey);
     }
 
     return (
@@ -118,12 +119,7 @@ function CreateToken() {
                                 </>
                             ) : null}
 
-                            <button
-                                type="submit"
-                                className="w-full text-white bg-indigo-600 hover:bg-indigo-800 focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800"
-                            >
-                                {loader ? <Loader height={5} width={5} /> : "Submit"}
-                            </button>
+                            <FormButton name="Submit" loader={loader} />
 
                         </form>
                         {

@@ -18,7 +18,6 @@ const port = process.env.PORT || constants.port;
 
 const helper = require('./app/helper')
 const invoke = require('./app/invoke')
-// const qscc = require('./app/qscc')
 const query = require('./app/query')
 
 // app.options('*', cors());
@@ -32,7 +31,6 @@ app.use(bodyParser.urlencoded({
     extended: false
 }));
 
-// set secret variable
 app.set('secret', 'thisismysecret');
 app.use(expressJWT({
     secret: 'thisismysecret'
@@ -43,14 +41,12 @@ app.use(bearerToken());
 
 logger.level = 'debug';
 
-
 app.use((req, res, next) => {
     logger.debug('New req for %s', req.originalUrl);
     if (req.originalUrl.indexOf('/users') >= 0 || req.originalUrl.indexOf('/users/login') >= 0 || req.originalUrl.indexOf('/register') >= 0 || req.originalUrl.indexOf('/consumer') >= 0) {
         return next();
     }
     var token = req.token;
-    console.log(`Token ================:${token}`);
     jwt.verify(token, app.get('secret'), (err, decoded) => {
         if (err) {
             console.log(`Error ================:${err}`)
@@ -78,12 +74,14 @@ server.timeout = 240000;
 function getErrorMessage(field) {
     var response = {
         success: false,
-        message: field + ' field is missing or Invalid in the request'
+        error: {
+            message: field + ' field is missing or Invalid in the request'
+        }
     };
     return response;
 }
 
-// Register and enroll user
+// Register user
 app.post('/register', async function (req, res) {
     var username = req.body.username;
     var orgName = req.body.orgName;
@@ -91,11 +89,21 @@ app.post('/register', async function (req, res) {
     logger.debug('User name : ' + username);
     logger.debug('Org name  : ' + orgName);
     if (!username) {
-        res.json(getErrorMessage('\'username\''));
+        res.json({
+            success: false,
+            error: {
+                message: "username is missing!"
+            }
+        });
         return;
     }
     if (!orgName) {
-        res.json(getErrorMessage('\'orgName\''));
+        res.json({
+            success: false,
+            error: {
+                message: "orgName is missing!"
+            }
+        });
         return;
     }
 
@@ -105,20 +113,35 @@ app.post('/register', async function (req, res) {
         orgName: orgName
     }, app.get('secret'));
 
-    console.log(token)
-
     let response = await helper.registerAndGerSecret(username, orgName);
 
-    console.log('response: ', response);
+    if(!response.success) {
+        logger.debug('Failed to register the username %s for organization %s with::%s', username, orgName, response);
+        return res.json({
+            success: false,
+            error: {
+                message: response.message
+            }
+        });
+    }
 
-    logger.debug('-- returned from registering the username %s for organization %s', username, orgName);
-    if (response && typeof response !== 'string') {
+    if (response.success) {
         logger.debug('Successfully registered the username %s for organization %s', username, orgName);
-        response.token = token;
-        res.json(response);
+        res.json({
+            success: true,
+            message: {
+                secret: response.secret,
+                privateKey: response.privateKey,
+            }
+        });
     } else {
         logger.debug('Failed to register the username %s for organization %s with::%s', username, orgName, response);
-        res.json({ success: false, message: response });
+        res.json({
+            success: false,
+            error: {
+                message: "Failed to register!"
+            }
+        });
     }
 
 });
@@ -133,65 +156,88 @@ app.post('/users/login', async function (req, res) {
     logger.debug('Org name  : ' + orgName);
     logger.debug('secret  : ' + secret);
     if (!username) {
-        res.json(getErrorMessage('\'username\''));
+        res.json({
+            success: false,
+            error: {
+                message: "username is missing"
+            }
+        });
         return;
     }
     if (!orgName) {
-        res.json(getErrorMessage('\'orgName\''));
+        res.json({
+            success: false,
+            error: {
+                message: "orgName is missing"
+            }
+        });
         return;
     }
 
 
     let isUserRegistered = await helper.isUserRegistered(username, orgName, secret);
 
-    if (isUserRegistered) {
+    console.log("isUserRegistered: ", isUserRegistered);
+
+    if (isUserRegistered.success) {
         var token = jwt.sign({
             exp: Math.floor(Date.now() / 1000) + parseInt(constants.jwt_expiretime),
             username: username,
             orgName: orgName
         }, app.get('secret'));
-        res.json({ success: true, message: { token: token } });
-
+        res.json({
+            success: true,
+            message: {
+                token: token
+            }
+        });
     } else {
-        res.json({ success: false, message: `User with username ${username} is not registered with ${orgName}, Please register first.` });
+        res.json({ 
+            success: false, 
+            error: {
+                message: isUserRegistered.message
+            }
+        });
     }
 });
 
 app.get('/consumer', async function (req, res) {
-    try{
+    try {
         var tokenId = req.query.tokenId;
         logger.debug('End point : /consumer');
         logger.debug('tokenId : ' + tokenId);
-    
+
         if (!tokenId) {
-            res.json(getErrorMessage('\'tokenId\''));
-            return;
+            return res.json({
+                success: false,
+                error: {
+                    message: "tokenId is missing"
+                }
+            });
         }
-    
+
         let result = await query.queryByConsumer("readByConsumer", tokenId);
         let parentResult = null;
 
-        if("parentTokenId" in JSON.parse(result.txid)){
+        if ("parentTokenId" in JSON.parse(result.txid)) {
             let parentTokenId = JSON.parse(result.txid).parentTokenId;
             parentResult = await query.queryByConsumer("getHistory", parentTokenId);
-            // console.log("parentResult: ", parentResult);
         }
-
-        console.log("result: ", JSON.parse(result.txid).parentTokenId);
-        console.log("parentResult: ", parentResult);
 
         res.send({
             success: true,
-            result: result,
-            parentResult
+            message: {
+                result: result,
+                parentResult
+            }
         })
 
     } catch (error) {
-        console.log(error.message);
         res.send({
             success: false,
-            error: error.name,
-            errorData: error.message
+            error: {
+                message: error.message
+            }
         })
     }
 });
@@ -200,50 +246,80 @@ app.get('/consumer', async function (req, res) {
 app.post('/channels/:channelName/chaincodes/:chaincodeName', async function (req, res) {
     try {
         logger.debug('==================== INVOKE ON CHAINCODE ==================');
-        var peers = req.body.peers;
         var chaincodeName = req.params.chaincodeName;
         var channelName = req.params.channelName;
         var fcn = req.body.fcn;
         var args = req.body.args;
         var transient = "";
-        console.log(`Transient data is ;${transient}`)
+        console.log("private data is : ", req.body.privateKey)
         logger.debug('channelName  : ' + channelName);
         logger.debug('chaincodeName : ' + chaincodeName);
         logger.debug('fcn  : ' + fcn);
         logger.debug('args  : ', req.body.args);
         if (!chaincodeName) {
-            res.json(getErrorMessage('\'chaincodeName\''));
+            res.json({
+                success: false,
+                error: {
+                    message: "chaincodeName is missing"
+                }
+            });
             return;
         }
         if (!channelName) {
-            res.json(getErrorMessage('\'channelName\''));
+            res.json({
+                success: false,
+                error: {
+                    message: "channelName is missing"
+                }
+            });
             return;
         }
         if (!fcn) {
-            res.json(getErrorMessage('\'fcn\''));
+            res.json({
+                success: false,
+                error: {
+                    message: "fcn is missing"
+                }
+            });
             return;
         }
         if (!args) {
-            res.json(getErrorMessage('\'args\''));
+            res.json({
+                success: false,
+                error: {
+                    message: "args is missing"
+                }
+            });
             return;
         }
 
-        let message = await invoke.invokeTransaction(channelName, chaincodeName, fcn, args, req.username, req.orgname, transient, req.body.privateKey);
-        console.log('message result is : ', message);
+        let result = await invoke.invokeTransaction(channelName, chaincodeName, fcn, args, req.username, req.orgname, transient, req.body.privateKey);
+        console.log('result is : ', result);
 
-        const response_payload = {
-            success: true,
-            message
+        if(result.success) {
+            res.send({
+                success: true,
+                message : {
+                    result: result.txn
+                }
+            });
+        } else {
+            res.send({
+                success: false,
+                error: {
+                    message: result.message
+                }
+            })
         }
-        res.send(response_payload);
+
 
     } catch (error) {
-        const response_payload = {
-            result: null,
-            error: error.name,
-            errorData: error.message
-        }
-        res.send(response_payload)
+        res.send({
+            success: false,
+            error: {
+                message: error.message
+            }
+        })
     }
 });
 
@@ -256,7 +332,6 @@ app.get('/channels/:channelName/chaincodes/:chaincodeName', async function (req,
         console.log(`chaincode name is :${chaincodeName}`)
         let args = req.query.args;
         let fcn = req.query.fcn;
-        let peer = req.query.peer;
 
         logger.debug('channelName : ' + channelName);
         logger.debug('chaincodeName : ' + chaincodeName);
@@ -265,41 +340,56 @@ app.get('/channels/:channelName/chaincodes/:chaincodeName', async function (req,
         logger.debug('privateKey: ' + req.params.privateKey);
 
         if (!chaincodeName) {
-            res.json(getErrorMessage('\'chaincodeName\''));
-            return;
+            return res.json({
+                success: false,
+                error: {
+                    message: "chaincodeName is missing"
+                }
+            });
         }
         if (!channelName) {
-            res.json(getErrorMessage('\'channelName\''));
-            return;
+            return res.json({
+                success: false,
+                error: {
+                    message: "channelName is missing"
+                }
+            });
         }
         if (!fcn) {
-            res.json(getErrorMessage('\'fcn\''));
-            return;
+            return res.json({
+                success: false,
+                error: {
+                    message: "fcn is missing"
+                }
+            });
         }
         if (!args) {
-            res.json(getErrorMessage('\'args\''));
-            return;
+            return res.json({
+                success: false,
+                error: {
+                    message: "args is missing"
+                }
+            });
         }
-        console.log('args==========', args);
+        
         args = args.replace(/'/g, '"');
         args = JSON.parse(args);
         logger.debug(args);
 
         let message = await query.query(channelName, chaincodeName, args, fcn, req.username, req.orgname, req.params.privateKey);
 
-        const response_payload = {
-            result: message,
-            error: null,
-            errorData: null
-        }
-
-        res.send(response_payload);
+        res.send({
+            success: true,
+            message: {
+                result: message
+            }
+        });
     } catch (error) {
-        const response_payload = {
-            result: null,
-            error: error.name,
-            errorData: error.message
-        }
-        res.send(response_payload)
+        res.send({
+            success: false,
+            error: {
+                message: error.message
+            }
+        })
     }
 });

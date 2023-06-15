@@ -69,27 +69,37 @@ const isUserRegistered = async (username, userOrg, secret) => {
     const wallet = await Wallets.newFileSystemWallet(walletPath);
     console.log(`Wallet path: ${walletPath}`);
 
-    const userIdentity = await wallet.get(username);
-
-    if (userIdentity) {
-
-        let ccp = await getCCP(userOrg);
-
-        const caURL = await getCaUrl(userOrg, ccp);
-        const ca = new FabricCAServices(caURL);
-
-        console.log(`An identity for the user ${username} exists in the wallet`);
-
-        console.log('secret: ', secret);
-        console.log('username: ', username);
-
-        const enrollment = await ca.enroll({ enrollmentID: username, enrollmentSecret: secret });
+    try {
+        const userIdentity = await wallet.get(username);
+    
+        if (userIdentity) {
+            let ccp = await getCCP(userOrg);
+    
+            const caURL = await getCaUrl(userOrg, ccp);
+            const ca = new FabricCAServices(caURL);
+    
+            console.log('username: ', username);
+            console.log('secret: ', secret);
+    
+            const enrollment = await ca.enroll({ enrollmentID: username, enrollmentSecret: secret });
+    
+            return {
+                success: true,
+            }
+        }
+        return {
+            success: false,
+            message: "User not registered"
+        }
         
-        console.log('enrollment: ', enrollment);
-
-        return true
+    } catch (error) {
+        console.log("isUserRegistered Error: ",error);
+        return {
+            success: false,
+            message: error.message
+        }
     }
-    return false
+
 }
 
 const getCaInfo = async (org, ccp) => {
@@ -179,8 +189,6 @@ const enrollAdmin = async (org, ccp) => {
 const registerAndGerSecret = async (username, userOrg) => {
     let ccp = await getCCP(userOrg)
 
-    // console.log("ccp : ", ccp)
-
     const caURL = await getCaUrl(userOrg, ccp)
     const ca = new FabricCAServices(caURL);
 
@@ -189,41 +197,41 @@ const registerAndGerSecret = async (username, userOrg) => {
     console.log(`Wallet path: ${walletPath}`);
 
     const userIdentity = await wallet.get(username);
-    console.log("userIdentity : ", userIdentity);
-
     if (userIdentity) {
         console.log(`An identity for the user ${username} already exists in the wallet`);
-        var response = {
-            success: true,
-            message: username + ' enrolled Successfully',
+        return {
+            success: false,
+            message: `User already exists!`
         };
-        return response
     }
 
     // Check to see if we've already enrolled the admin user.
     let adminIdentity = await wallet.get('admin');
-    // console.log("adminIdentity : ", adminIdentity);po
     if (!adminIdentity) {
         console.log('An identity for the admin user "admin" does not exist in the wallet');
         await enrollAdmin(userOrg, ccp);
         adminIdentity = await wallet.get('admin');
     }
 
-
     // build a user object for authenticating with the CA
     const provider = wallet.getProviderRegistry().getProvider(adminIdentity.type);
     const adminUser = await provider.getUserContext(adminIdentity, 'admin');
+    
     let secret;
     let privateKey;
+
     try {
         // Register the user, enroll the user, and import the new identity into the wallet.
         secret = await ca.register({ affiliation: await getAffiliation(userOrg), enrollmentID: username, role: 'client', maxEnrollments: -1 }, adminUser);
         console.log("secret : ", secret);
+        
         const enrollment = await ca.enroll({
             enrollmentID: username,
             enrollmentSecret: secret
         });
+        
         let orgMSPId = getOrgMSP(userOrg);
+        
         privateKey = enrollment.key.toBytes();
         const x509Identity = {
             credentials: {
@@ -233,23 +241,21 @@ const registerAndGerSecret = async (username, userOrg) => {
             mspId: orgMSPId,
             type: 'X.509',
         };
-        console.log("log 1");
+        
         await wallet.put(username, x509Identity);
+    
     } catch (error) {
-        console.log("error msg");
-        return error.message
+        return {
+            success: false,
+            message: error
+        };
     }
 
-    console.log("log 2");
-
-    var response = {
+    return {
         success: true,
-        message: username + ' enrolled Successfully',
-        secret: secret,
-        privateKey: privateKey
+        secret,
+        privateKey
     };
-    return response
-
 }
 
 module.exports = {

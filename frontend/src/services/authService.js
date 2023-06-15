@@ -6,13 +6,11 @@ const roleKey = "orgName";
 
 export async function login(data) {
     const res = await http.post(apiLogin, data);
-
-    console.log(res);
+    console.log(res.data);
 
     if (res.data.success) {
         localStorage.setItem(tokenKey, res.data.message.token);
         localStorage.setItem(roleKey, data.orgName);
-        return true;
     }
 
     return res;

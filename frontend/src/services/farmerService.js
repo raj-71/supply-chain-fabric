@@ -20,6 +20,7 @@ function sellToWholesaler(tokenId, wholesalerId, privateKey){
 }
 
 function getTokens(privateKey){
+    console.log("privateKey: ", privateKey);
     return httpService.post(apiEndpoint, {
         peers: ["peer0.farmer.supplychain.com"],
         fcn: "readAllNFT",

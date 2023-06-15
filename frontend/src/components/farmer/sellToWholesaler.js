@@ -10,7 +10,6 @@ function SellToWholesaler() {
     const [success, setSuccess] = useState(false);
 
     const [promptPrivateKeyModal, setPromptPrivateKeyModal] = useState(false);
-    const [privateKey, setPrivateKey] = useState("");
 
     const [tokenId, setTokenId] = useState("");
     const [wholesalerId, setWholesalerId] = useState("");
@@ -25,31 +24,33 @@ function SellToWholesaler() {
         setPromptPrivateKeyModal(true);
     };
 
-    const sendRequest = async () => {
+    const sendRequest = async (key) => {
         try {
             console.log("tokenId: ", tokenId, "wholesalerId: ", wholesalerId);
-            console.log("privateKey: ", privateKey);
 
-            const res = await FarmerService.sellToWholesaler(tokenId, wholesalerId, privateKey);
+            const res = await FarmerService.sellToWholesaler(tokenId, wholesalerId, key);
             
             console.log("response: ", res.data);
+            setLoader(false);
 
             if (res.data.success) {
-                setSuccess("Token Transfered Successfully!");
                 setError("");
-                setLoader(false);
-                console.log("response data");
-                console.log(res.data);
+                setSuccess("Token Transfered Successfully!");
+            } else {
+                setSuccess("");
+                setError(res.data.error.message);
             }
         } catch (error) {
+            setLoader(false);
+            setSuccess("");
+            setError("Something went wrong!");
             console.log(error);
         }
     }
 
     const handlePromptPrivateKey = (promptPrivateKey) => {
-        setPrivateKey(promptPrivateKey);
         setPromptPrivateKeyModal(false);
-        sendRequest();
+        sendRequest(promptPrivateKey);
     }
 
     return (

@@ -1,7 +1,9 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import FormButton from "../../common/formButton";
 import Input from "../../common/input";
 import Loader from "../../common/loader";
+import Select from "../../common/select";
 import authService from "../../services/authService";
 
 function Login() {
@@ -21,12 +23,12 @@ function Login() {
 
     try {
       const res = await authService.login({username, orgName: org, secret});
+      setLoader(false);
       // console.log(res);
-      if (res) {
-        setLoader(false);
+      if (res.data.success) {
         navigate("/dashboard");
       } else {
-        setError("Something went wrong!");
+        setError(res.data.error.message);
       }
     } catch (error) {
       setLoader(false);
@@ -64,53 +66,20 @@ function Login() {
                 onChange={setSecret}
               />
 
-              <div className="relative">
-                <label
-                  htmlFor="dropdown"
-                  className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-                >
-                  Login For
-                </label>
-                <select
-                  id="dropdown"
-                  name="dropdown"
-                  className="block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-primary-600 focus:border-primary-600 sm:text-sm rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                  defaultValue="Select"
-                  value={org}
-                  onChange={(e) => setOrg(e.target.value)}
-                >
-                  <option value={"farmer"}>Farmer</option>
-                  <option value={"wholesaler"}>Wholesaler</option>
-                  <option value={"retailer"}>Retailer</option>
+              <Select
+                label="Login As"
+                value={org}
+                onChange={setOrg}
+                options={["farmer", "wholesaler", "retailer"]}
+              />
 
-                </select>
-                <div className="absolute inset-y-0 right-0 top-5 flex items-center pr-2 pointer-events-none">
-                  <svg
-                    className="w-5 h-5 text-gray-400"
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 20 20"
-                    fill="currentColor"
-                    aria-hidden="true"
-                  >
-                    <path
-                      fillRule="evenodd"
-                      d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
-                </div>
-              </div>
               {error && (
                 <>
                   <div className="text-center text-red-500">{error}</div>
                 </>
               )}
-              <button
-                type="submit"
-                className="w-full bg-indigo-600 text-white  hover:bg-indigo-800 focus:ring-4 focus:outline-none focus:ring-primary-300 font-semibold rounded-lg text-sm px-5 py-2.5 text-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800"
-              >
-                {loader ? <Loader height={5} width={5} /> : "Sign In"}
-              </button>
+
+              <FormButton name="Sign In" loader={loader} />
 
               <Link
                 to="/register"

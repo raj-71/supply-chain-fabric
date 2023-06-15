@@ -20,45 +20,45 @@ const generateTokenId = async (channelName, chaincodeName, fcn, args, username, 
             for (let i = 0; i < 32; i++) {
                 tokenId += characters.charAt(Math.floor(Math.random() * 36));
             }
-            console.log("tokenId")
             let message = await query.query(channelName, chaincodeName, tokenId, "nftExists", username, orgname);
             exists = JSON.parse(message.toString());
-            console.log("message by generateTokenId: ", JSON.parse(message.toString()));
         }
-        console.log("final tokenId by function: ", tokenId);
-        return tokenId;
+        return {
+            success: true,
+            tokenId: tokenId
+        };
     }
     catch (error) {
         console.error(`Failed to generate token Id: ${error}`);
-        process.exit(1);
+        return {
+            success: false,
+            message: error.message
+        }
     }
 }
 
 const invokeTransaction = async (channelName, chaincodeName, fcn, args, username, org_name, transientData, privateKey) => {
     try {
+        console.log("privateKey: ", privateKey);
         const ccp = await helper.getCCP(org_name);
-        console.log("==================", channelName, chaincodeName, fcn, args, username, org_name,)
 
         const walletPath = await helper.getWalletPath(org_name);
         const wallet = await Wallets.newFileSystemWallet(walletPath);
         console.log(`Wallet path: ${walletPath}`);
-        
+
         let identity = await wallet.get(username);
 
+        if (!identity) {
+            return {
+                success: false,
+                message: `${username} does not exist!`
+            }
+        }
+        
         identity.credentials.privateKey = privateKey;
 
-        if (!identity) {
-            console.log(`An identity for the user ${username} does not exist in the wallet, so registering user`);
-            await helper.getRegisteredUser(username, org_name, true)
-            identity = await wallet.get(username);
-            console.log('Run the registerUser.js application before retrying');
-            return;
-        }
-
-
         const connectOptions = {
-            wallet, identity: username, discovery: { enabled: true, asLocalhost: true }
-            // eventHandlerOptions: EventStrategies.NONE
+            wallet, identity, discovery: { enabled: true, asLocalhost: true }
         }
 
         const gateway = new Gateway();
@@ -66,42 +66,53 @@ const invokeTransaction = async (channelName, chaincodeName, fcn, args, username
 
         const network = await gateway.getNetwork(channelName);
         const contract = network.getContract(chaincodeName);
-
-        // Important: Please dont set listener here, I just showed how to set it. If we are doing here, it will set on every invoke call.
-        // Instead create separate function and call it once server started, it will keep listening.
-        // await contract.addContractListener(contractListener);
-        // await network.addBlockListener(blockListener);
-
-
-        // Multiple smartcontract in one chaincode
         let result;
         let message;
 
+        // Multiple smartcontract in one chaincode
         switch (fcn) {
             case "createToken":
-                console.log("before")
-                let tokenId = await generateTokenId(channelName, chaincodeName, fcn, args, username, org_name);
-                console.log("after tokenId: ", tokenId);
-                result = await contract.submitTransaction(fcn, tokenId, JSON.stringify(args[0]));
-                console.log("result: =========", result);
-                result = {txid: result.toString()}
-                break;
+                console.log("generating tokenId...");
+                let genTokenId = await generateTokenId(channelName, chaincodeName, fcn, args, username, org_name);
+                if(genTokenId.success == false) {
+                    return {
+                        success: false,
+                        message: "Failed to generate tokenId!"
+                    }
+                } else {
+                    console.log("tokenId: ", genTokenId);
+                    txn = await contract.submitTransaction(fcn, genTokenId.tokenId, JSON.stringify(args[0]));
+                    txn = txn.toString()
+                    console.log("result: =========", txn);
+                }
+                return {
+                    success: true,
+                    txn,
+                };
             case "transferFrom":
-                result = await contract.submitTransaction(fcn, args[0], args[1]);
-                result = {txid: result.toString()}
+                txn = await contract.submitTransaction(fcn, args[0], args[1]);
+                txn = txn.toString();
+                return {
+                    success: true,
+                    txn,
+                }
                 break;
             case "addMetadata":
                 result = await contract.submitTransaction(fcn, args[0], args[1]);
-                result = {txid: result.toString()}
+                result = { txid: result.toString() }
                 break;
             case "_generateTokenId":
                 result = await contract.submitTransaction(fcn);
-                result = {txid: result.toString()}
+                result = { txid: result.toString() }
                 break;
             case "readAllNFT":
-                result = await contract.evaluateTransaction(fcn);
-                result = JSON.parse(result.toString());
-                break;
+                txn = await contract.evaluateTransaction(fcn);
+                txn = JSON.parse(txn.toString());
+                console.log(txn);
+                return {
+                    success: true,
+                    txn,
+                }
             case "lockToken":
                 result = await contract.submitTransaction(fcn, args[0]);
                 result = JSON.parse(result.toString());
@@ -116,7 +127,7 @@ const invokeTransaction = async (channelName, chaincodeName, fcn, args, username
                 }
                 console.log("before createTokensOverToken: ", tokenIds);
                 result = await contract.submitTransaction(fcn, JSON.stringify(tokenIds), args[0], args[1], JSON.stringify(args[2]));
-                result = {txid: result.toString()}
+                result = { txid: result.toString() }
                 break;
             default:
         }
@@ -136,7 +147,10 @@ const invokeTransaction = async (channelName, chaincodeName, fcn, args, username
     } catch (error) {
 
         console.log(`Getting error: ${error}`)
-        return error.message
+        return {
+            success: false,
+            message: error.message
+        }
 
     }
 }

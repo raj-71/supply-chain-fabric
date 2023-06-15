@@ -1,6 +1,4 @@
 import axios from "axios";
-import authService from "./authService";
-// import logService from "./logService";
 
 const instance = axios.create({
   baseURL: "http://localhost:4000/",
@@ -8,10 +6,20 @@ const instance = axios.create({
   withCredentials: true,
   headers: {
     "Content-Type": "application/json",
-    // 'token': localStorage.getItem("token"),
-    Authorization: "Bearer " + getJWT(),
   },
 });
+
+// interceptor
+instance.interceptors.request.use(
+  (config) => {
+    const token = getJWT();
+    if (token) {
+      config.headers["Authorization"] = "Bearer " + token;
+    }
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
 
 function setJWT(jwt) {}
 

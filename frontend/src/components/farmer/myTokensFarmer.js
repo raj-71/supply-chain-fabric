@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import Input from "../../common/input";
 import Loader from "../../common/loader";
 import PromptPrivateKey from "../../common/promptPrivateKey";
 import FarmerService from "../../services/farmerService";
@@ -9,23 +8,26 @@ function MyTokensFarmer() {
     const [error, setError] = useState(false);
 
     const [promptPrivateKeyModal, setPromptPrivateKeyModal] = useState(true);
-    const [privateKey, setPrivateKey] = useState("");
+    // const [privateKey, setPrivateKey] = useState("");
 
     const [data, setData] = useState([]);
     const [show, setShow] = useState(false);
 
-    const sendRequest = async () => {
+    const sendRequest = async (key) => {
         try {
-            console.log("privateKey: ", privateKey);
+            console.log("privateKey: ", key);
 
-            const res = await FarmerService.getTokens();
+            const res = await FarmerService.getTokens(key);
 
             console.log("response: ", res.data);
 
             if (res.data.success) {
                 setLoader(false);
+                setShow(true);
                 setData(res.data.message.result);
                 console.log(data)
+            } else {
+                setError(res.data.error.message);
             }
         } catch (error) {
             setLoader(false);
@@ -34,10 +36,8 @@ function MyTokensFarmer() {
     }
 
     const handlePromptPrivateKey = (promptPrivateKey) => {
-        setPrivateKey(promptPrivateKey);
         setPromptPrivateKeyModal(false);
-        setShow(true);
-        sendRequest();
+        sendRequest(promptPrivateKey);
     }
 
     const columnNames = ["Token Id", "Product Name", "Origin", "Quantity (in Kg)"];
@@ -108,6 +108,9 @@ function MyTokensFarmer() {
                                                         })}
                                                     </tbody>
                                                 </table>
+
+
+
                                             </div>
                                         </div>
                                     </div>
@@ -117,6 +120,9 @@ function MyTokensFarmer() {
                     </div>
                     :
                     null
+            }
+            {
+                error && <div className="text-red-500 text-center my-10 text-lg font-semibold">{error}</div>
             }
             {
                 promptPrivateKeyModal ? <PromptPrivateKey handlePromptPrivateKey={handlePromptPrivateKey} /> : null
