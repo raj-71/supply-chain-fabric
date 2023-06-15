@@ -67,6 +67,7 @@ const invokeTransaction = async (channelName, chaincodeName, fcn, args, username
         const network = await gateway.getNetwork(channelName);
         const contract = network.getContract(chaincodeName);
         let result;
+        let txn;
         let message;
 
         // Multiple smartcontract in one chaincode
@@ -114,8 +115,13 @@ const invokeTransaction = async (channelName, chaincodeName, fcn, args, username
                     txn,
                 }
             case "lockToken":
-                result = await contract.submitTransaction(fcn, args[0]);
-                result = JSON.parse(result.toString());
+                txn = await contract.submitTransaction(fcn, args[0]);
+                txn = txn.toString();
+                console.log(txn);
+                return {
+                    success: true,
+                    txn,
+                }
                 break;
             case "createTokensOverToken":
                 let tokenIds = [];
@@ -125,16 +131,20 @@ const invokeTransaction = async (channelName, chaincodeName, fcn, args, username
                     console.log(`token${i}: `, token);
                     tokenIds.push(token);
                 }
+                tokenIds = tokenIds.map(obj => obj.tokenId);
                 console.log("before createTokensOverToken: ", tokenIds);
-                result = await contract.submitTransaction(fcn, JSON.stringify(tokenIds), args[0], args[1], JSON.stringify(args[2]));
-                result = { txid: result.toString() }
+                txn = await contract.submitTransaction(fcn, JSON.stringify(tokenIds), args[0], args[1], JSON.stringify(args[2]));
+                txn = txn.toString();
+                console.log("after createTokensOverToken: ", txn);
+                return {
+                    success: true,
+                    txn,
+                }
                 break;
             default:
         }
 
         await gateway.disconnect();
-
-        // result = JSON.parse(result.toString());
 
         let response = {
             message: message,

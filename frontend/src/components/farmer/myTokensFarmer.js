@@ -4,25 +4,25 @@ import PromptPrivateKey from "../../common/promptPrivateKey";
 import FarmerService from "../../services/farmerService";
 
 function MyTokensFarmer() {
-    const [loader, setLoader] = useState(true);
     const [error, setError] = useState(false);
+    const [loader, setLoader] = useState(false);
 
     const [promptPrivateKeyModal, setPromptPrivateKeyModal] = useState(true);
-    // const [privateKey, setPrivateKey] = useState("");
 
     const [data, setData] = useState([]);
     const [show, setShow] = useState(false);
 
     const sendRequest = async (key) => {
         try {
+            setLoader(true);
             console.log("privateKey: ", key);
 
             const res = await FarmerService.getTokens(key);
 
             console.log("response: ", res.data);
+            setLoader(false);
 
             if (res.data.success) {
-                setLoader(false);
                 setShow(true);
                 setData(res.data.message.result);
                 console.log(data)
@@ -30,8 +30,8 @@ function MyTokensFarmer() {
                 setError(res.data.error.message);
             }
         } catch (error) {
-            setLoader(false);
             console.log(error);
+            setError("Something went wrong!");
         }
     }
 
@@ -108,9 +108,6 @@ function MyTokensFarmer() {
                                                         })}
                                                     </tbody>
                                                 </table>
-
-
-
                                             </div>
                                         </div>
                                     </div>
@@ -123,6 +120,11 @@ function MyTokensFarmer() {
             }
             {
                 error && <div className="text-red-500 text-center my-10 text-lg font-semibold">{error}</div>
+            }
+            {
+                loader ? <div className="mt-5">
+                    <Loader />
+                </div>  : null
             }
             {
                 promptPrivateKeyModal ? <PromptPrivateKey handlePromptPrivateKey={handlePromptPrivateKey} /> : null

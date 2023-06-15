@@ -1,7 +1,9 @@
 import React, { useState } from "react";
+import Error from "../../common/error";
+import FormButton from "../../common/formButton";
 import Input from "../../common/input";
-import Loader from "../../common/loader";
 import PromptPrivateKey from "../../common/promptPrivateKey";
+import Success from "../../common/success";
 import WholesalerService from "../../services/wholesalerService";
 
 function SellToRetailer() {
@@ -10,7 +12,6 @@ function SellToRetailer() {
     const [success, setSuccess] = useState(false);
 
     const [promptPrivateKeyModal, setPromptPrivateKeyModal] = useState(false);
-    const [privateKey, setPrivateKey] = useState("");
 
     const [tokenId, setTokenId] = useState("");
     const [retailerId, setRetailerId] = useState("");
@@ -25,31 +26,33 @@ function SellToRetailer() {
         setPromptPrivateKeyModal(true);
     };
 
-    const sendRequest = async () => {
+    const sendRequest = async (key) => {
         try {
             console.log("tokenId: ", tokenId, "retailerId: ", retailerId);
-            console.log("privateKey: ", privateKey);
 
-            const res = await WholesalerService.sellToRetailer(tokenId, retailerId, privateKey);
+            const res = await WholesalerService.sellToRetailer(tokenId, retailerId, key);
             
             console.log("response: ", res.data);
+            setLoader(false);
 
             if (res.data.success) {
-                setSuccess("Token Transfered Successfully!");
                 setError("");
-                setLoader(false);
-                console.log("response data");
-                console.log(res.data);
+                setSuccess("Token Transfered Successfully!");
+            } else {
+                setSuccess("");
+                setError(res.data.error.message);
             }
         } catch (error) {
+            setLoader(false);
+            setSuccess("");
+            setError("Something went wrong!");
             console.log(error);
         }
     }
 
     const handlePromptPrivateKey = (promptPrivateKey) => {
-        setPrivateKey(promptPrivateKey);
         setPromptPrivateKeyModal(false);
-        sendRequest();
+        sendRequest(promptPrivateKey);
     }
 
     return (
@@ -82,25 +85,11 @@ function SellToRetailer() {
                                 onChange={setRetailerId}
                             />
 
-                            {error ? (
-                                <div className="text-red-500 text-sm text-center  ">
-                                    {error}
-                                </div>
-                            ) : null}
-                            {success ? (
-                                <>
-                                <div className="text-green-500 text-sm text-center  ">
-                                    {success}
-                                </div>
-                                </>
-                            ) : null}
+                            <Error error={error} />
 
-                            <button
-                                type="submit"
-                                className="w-full text-white bg-indigo-600 hover:bg-indigo-800 focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800"
-                            >
-                                {loader ? <Loader height={5} width={5} /> : "Submit"}
-                            </button>
+                            <Success success={success} />
+
+                            <FormButton name="Submit" loader={loader} />
 
                         </form>
                         {

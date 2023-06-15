@@ -1,31 +1,30 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import Loader from "../../common/loader";
 import PromptPrivateKey from "../../common/promptPrivateKey";
 import FarmerService from "../../services/farmerService";
 
 function MyTokensWholesaler() {
-    const [loader, setLoader] = useState(true);
     const [error, setError] = useState(false);
+    const [loader, setLoader] = useState(false);
 
     const [promptPrivateKeyModal, setPromptPrivateKeyModal] = useState(true);
-    const [privateKey, setPrivateKey] = useState("");
 
     const [parentData, setParentData] = useState([]);
     const [childData, setChildData] = useState([]);
     const [show, setShow] = useState(false);
 
-    const sendRequest = async () => {
+    const sendRequest = async (key) => {
         try {
-            console.log("privateKey: ", privateKey);
+            console.log("privateKey: ", key);
+            setLoader(true);
 
-            const res = await FarmerService.getTokens();
-
+            const res = await FarmerService.getTokens(key);
             console.log("response: ", res.data);
+            setLoader(false);
 
             if (res.data.success) {
-                setLoader(false);
-                console.log(res.data.message.result)
-
+                setShow(true);
+                
                 res.data.message.result.forEach((item) => {
                     if (item.Record.parentTokenId) {
                         setChildData((childData) => [...childData, item]);
@@ -33,20 +32,18 @@ function MyTokensWholesaler() {
                         setParentData((parentData) => [...parentData, item]);
                     }
                 });
-
-                // setData(res.data.message.result);
+            } else {
+                setError(res.data.error.message);
             }
         } catch (error) {
-            setLoader(false);
             console.log(error);
+            setError("Something went wrong!");
         }
     }
 
     const handlePromptPrivateKey = (promptPrivateKey) => {
-        setPrivateKey(promptPrivateKey);
         setPromptPrivateKeyModal(false);
-        setShow(true);
-        sendRequest();
+        sendRequest(promptPrivateKey);
     }
 
     const columnNamesParent = ["Token Id", "Product Name", "Origin", "Quantity (in Kg)", "Tokens Created"];
@@ -77,7 +74,6 @@ function MyTokensWholesaler() {
                             <section className="mb-32 text-center">
                                 <div className="mx-auto px-3 lg:px-6">
                                     <h2 className="text-3xl font-bold mb-12">Tokens Bought</h2>
-                                    {/* Table of Doctors with column Name Department Degree and Access Toggle Button */}
                                     <div className="flex flex-col">
                                         <div className="-my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
                                             <div className="py-2 align-middle inline-block min-w-full sm:px-6 lg:px-8">
@@ -94,8 +90,7 @@ function MyTokensWholesaler() {
                                                                             {column}
                                                                         </th>
                                                                     )
-                                                                }
-                                                                )}
+                                                                })}
                                                             </tr>
                                                         </thead>
                                                         <tbody className="bg-white divide-y divide-gray-200">
@@ -174,9 +169,16 @@ function MyTokensWholesaler() {
                             </section>
                         </div>
                     </>
-
                     :
                     null
+            }
+            {
+                error && <div className="text-red-500 text-center my-10 text-lg font-semibold">{error}</div>
+            }
+            {
+                loader ? <div className="mt-5">
+                    <Loader />
+                </div>  : null
             }
             {
                 promptPrivateKeyModal ? <PromptPrivateKey handlePromptPrivateKey={handlePromptPrivateKey} /> : null

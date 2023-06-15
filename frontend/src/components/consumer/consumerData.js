@@ -1,6 +1,9 @@
 import React, { useState } from "react";
+import Error from "../../common/error";
+import FormButton from "../../common/formButton";
 import Input from "../../common/input";
 import Loader from "../../common/loader";
+import Success from "../../common/success";
 import ConsumerService from "../../services/consumerService";
 
 function ConsumerData() {
@@ -26,25 +29,32 @@ function ConsumerData() {
 
     const sendRequest = async () => {
         try {
-
+            setLoader(true);
+            setShow(false);
             const res = await ConsumerService.getTokenData(tokenId);
 
             console.log("response: ", res.data);
+            setLoader(false);
 
             if (res.data.success) {
                 setError("");
                 setLoader(false);
                 console.log("response data");
-                console.log(JSON.parse(res.data.result.txid));
-                setTokenData(JSON.parse(res.data.result.txid));
+                console.log(res.data);
 
-                console.log("parentData: ", JSON.parse(res.data.parentResult.txid))
-                setParentData(JSON.parse(res.data.parentResult.txid));
+                setTokenData(JSON.parse(res.data.message.result.txid));
+                setParentData(JSON.parse(res.data.message.parentResult.txid));
 
                 setShow(true);
+            } else {
+                setSuccess("");
+                setError(res.data.error.message);
             }
         } catch (error) {
             console.log(error);
+            setLoader(false);
+            setSuccess("");
+            setError("Something went wrong!");
         }
     }
 
@@ -87,25 +97,11 @@ function ConsumerData() {
                                 onChange={setTokenId}
                             />
 
-                            {error ? (
-                                <div className="text-red-500 text-sm text-center  ">
-                                    {error}
-                                </div>
-                            ) : null}
-                            {success ? (
-                                <>
-                                    <div className="text-green-500 text-sm text-center  ">
-                                        {success}
-                                    </div>
-                                </>
-                            ) : null}
+                            <Error error={error} />
 
-                            <button
-                                type="submit"
-                                className="w-full text-white bg-indigo-600 hover:bg-indigo-800 focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800"
-                            >
-                                {loader ? <Loader height={5} width={5} /> : "Submit"}
-                            </button>
+                            <Success success={success} />
+
+                            <FormButton name="Submit" loader={loader} />
 
                         </form>
                     </div>
@@ -155,34 +151,35 @@ function ConsumerData() {
                                         </div>
                                     </section>
                                 </div>
+                                {
+                                    parentData.length > 0 ?
+                                        <>
+                                            <div>
+                                                <div>
+                                                    <h2 className="text-3xl text-gray-50 font-bold mb-12 text-center">Parent Token Transaction History</h2>
+                                                </div>
+                                                {parentData.map((item, index) => {
+                                                    return (
+                                                        <div className="container my-12 px-6 mx-auto text-gray-50 text-left">
+                                                            <section className="mb-16">
+                                                                <div className="mx-auto px-3 lg:px-6">
+                                                                    Transaction Id - {item.transactionId} <br />
+                                                                    Time - {(new Date(item.timestamp.seconds.low * 1000)).toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: "2-digit", hour12: true })} <br />
+                                                                    Farmer - <div><pre>{(JSON.stringify(JSON.parse(JSON.parse(item.value).farmer), null, 2))}</pre></div>
+                                                                    Value - <div><pre>{(JSON.stringify(JSON.parse(item.value), null, 2))}</pre></div>
+                                                                </div>
+                                                            </section>
+                                                        </div>
+                                                    )
+                                                })}
+                                            </div>
+                                        </>
+                                        : null
+                                }
                             </>
 
                             :
                             null
-                    }
-                    {
-                        parentData.length > 0 ?
-                            <>
-                                <div>
-                                    <div>
-                                        <h2 className="text-3xl text-gray-50 font-bold mb-12 text-center">Parent Token Transaction History</h2>
-                                    </div>
-                                    {parentData.map((item, index) => {
-                                        return (
-                                            <div className="container my-12 px-6 mx-auto text-gray-50 text-left">
-                                                <section className="mb-16">
-                                                    <div className="mx-auto px-3 lg:px-6">
-                                                        Transaction Id - {item.transactionId} <br />
-                                                        Time - {(new Date(item.timestamp.seconds.low * 1000)).toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: "2-digit", hour12: true })} <br />
-                                                        Value - <div><pre>{JSON.stringify(JSON.parse    (item.value), null, 2)}</pre></div>
-                                                    </div>
-                                                </section>
-                                            </div>
-                                        )
-                                    })}
-                                </div>
-                            </>
-                            : null
                     }
                 </div>
             </section>
