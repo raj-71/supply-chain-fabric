@@ -1,8 +1,0 @@
-PeerOrgs:
-  - Name: farmer
-    Domain: farmer.supplychain.com
-    Specs:
-    Template:
-      Count: 1
-    Users:
-      Count: 1
