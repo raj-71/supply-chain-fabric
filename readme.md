@@ -1,32 +1,56 @@
-# Supply Chain on Hyperledger Fabric
+# TrustChain
+TrustChain is a blockchain-based solution that aims to create consumer trust in products by tracking their raw materials throughout the supply chain. It allows consumers to verify the origin, authenticity, and journey of a product by leveraging blockchain technology.
 
-## Installation and Usage
+## Table of Contents
 
-### Pre-requisites
+- [Introduction](#introduction)
+- [Features](#features)
+- [Installation and Usage](#getting-started)
+    - [Prerequisites](#prerequisites)
+    - [Installation](#installation)
+    - [Configuration](#configuration)
+- [Chaincode Functions](#chaincode-functions)
+- [Troubleshooting](#troubleshooting)
+
+
+
+## Introduction
+TrustChain is a platform that enhances transparency and builds trust between consumers and manufacturers. By tracking the entire supply chain on Hyperledger Fabric Blockchain, TrustChain provides consumers with access to valuable information about the product's raw materials, sourcing, and production processes.
+
+
+
+## Features
+
+1. **Secure Account Creation:** Each member of the supply chain, excluding consumers, can create a dedicated account with a private key(for blockchain transaction) and secret code(for user authentication) for data security.
+2. **Token Creation:** Only Farmers can create tokens for their raw materials, establishing a verifiable and unique identity for each item.
+3. **Ownership Transfer:** Raw material ownership can be securely transferred from farmers to wholesalers, ensuring a transparent and auditable supply chain.
+4. **Product Manufacturing:** Wholesalers can create new tokens based on existing ones, representing the products manufactured using the raw materials.
+5. **Transfer to Retailer:** Manufacturers can transfer the newly created product tokens to retailers, streamlining the distribution process.
+6. **Consumer Purchase:** Retailers sell products to consumers, and the corresponding token is locked to maintain the integrity of the product's metadata.
+7. **Product Tracking:** Consumers can track the entire supply chain journey of a product by using its unique token ID.
+
+
+
+
+## Getting Started
+
+### Prerequisites
 
 Verify that you have the following installed:
 
 ```bash
 $ node -v
 v16.20.0
-```
 
-```bash
 $ npm -v
 8.19.4
-```
 
-```bash
 $ docker -v
 Docker version 23.0.1, build a5ee5b1
-```
 
-```bash
 $ docker-compose -v
 Docker Compose version v2.15.1
-```
 
-```bash
 $ git --version
 git version 2.39.2
 ```
@@ -54,6 +78,33 @@ git version 2.39.2
     $ npm install
     $ node app.js
     ```
+
+### Configuration
+
+- Organizations
+    - Farmer
+    - Wholesaler
+    - Retailer
+- 1 Peer per Organization
+- 1 Orderer of channel
+- `CouchDB` as Database
+
+
+### Chaincode Functions
+
+1.  `createToken` - to generate a token for a produce only by farmer
+
+2.  `transferFrom` - when someone sells a token to other user
+
+3. `createTokenOverToken` - when someone create a product from raw material, new tokens are created over those tokens
+
+4. `lockToken` - when retailer sells product to consumer, no new metadata can be added to that token
+
+5. `readNFT` - read data of a token from the ledger only if the user owns it
+
+6. `readAllNFT` - read all the tokens that the user owns
+
+7. `getHistory` - get all the transactions related to that token
 
 ## Troubleshooting
 
@@ -119,50 +170,3 @@ Incase if any of the commands fail due to configurations or the network was not 
         consumer:
             - department1
     ```
-
-### Idea
-
-- Farmer
-	- Generate Token for a product (Register a produce)
-		- Location is added
-	- Sends to a wholesaler
-
-- WholeSaler
-	- Does Packaging
-		- Adds packaging cost
-	- Sends to a Retailer
-
-- Retailer
-	- Cost of logistics is added
-	- Time when product reached to retailer is added
-
-- Consumer
-	- time he buys a product is added to ledger (final)
-	- consumer can query all the data on the ledger
-
-
-### Chaincode Functions
-
-1.  `registerProduce` - to generate a token for a produce(asset)
-    inputs - farmerId, location, produceType, price, quantity
-    outputs - tokenId
-
-2.  `shipsTo` - when someone ships a produce to someone else
-    inputs - tokenId, toId
-    outputs - ack
-
-3. `acknowledgeReceived` - when someone receives a produce
-    inputs - tokenId, receivedAtLocation, logisticsCost, logisticsTime
-    outputs - ack
-
-4. `addPackagingDetails` - when wholesaler adds packaging details
-    inputs - tokenId, packagingCost, packagingTime, storageCost, storageTime, expirationDate
-    outputs - tokenId
-
-5. `addRetailerDetails` - when retailer adds logistics cost
-    inputs - tokenId, timeOfSale, timeOfArrival
-    outputs - tokenId
-
-6. `queryAll` - to query all the data on the ledger
-    inputs - tokenId
-    outputs - all the data of the asset on ledger
