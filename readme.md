@@ -1,6 +1,6 @@
 # TrustChain
 
-![supply-chain](https://github.com/raj-71/supply-chain-fabric/assets/40698372/0c45c650-afdc-4fc3-b56f-2f5a1274b143)
+![supply-chain](https://github.com/raj-71/supply-chain-fabric/assets/40698372/fe07b925-9a5e-4554-8f55-80c40e619ba9)
 
 
 TrustChain is a blockchain-based solution that aims to create consumer trust in products by tracking their raw materials throughout the supply chain. It allows consumers to verify the origin, authenticity, and journey of a product by leveraging blockchain technology.
